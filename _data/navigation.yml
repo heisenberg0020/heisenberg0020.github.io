@@ -1,33 +1,47 @@
 # The following is the order of the links in the header of the website.
 #
-# Changing the order here will adjust the order and you can also add additional
-# links. Removing a link prevents it from showing in the header, but does not
-# prevent it from being included in the site.
+# TODO: Customize the navigation menu for your website
+# 
+# HOW TO MODIFY:
+# - Change the order of items by reordering the sections below
+# - Remove sections you don't need by deleting or commenting out (add # at the start)
+# - Add new sections by copying the format: - title: "Title" \n    url: /url/
+# - The 'title' is what appears in the navigation menu
+# - The 'url' should match a page in the _pages directory
 #
-# NOTE that only one of the CV options should be selected, the first is for the
-#      Markdown formatted page while the second is generated using JSON.
+# NOTE: Only one of the CV options should be selected, the first is for the
+#       Markdown formatted page while the second is generated using JSON.
+# 
+# EXAMPLE CUSTOMIZATIONS:
+# - If you don't have publications yet, comment out or remove the Publications section
+# - If you don't teach, comment out or remove the Teaching section
+# - If you want to add a "Contact" page, add: - title: "Contact" \n    url: /contact/
 
 main:
-  - title: "Publications"
+  # MODIFY: Comment out (add #) any sections you don't want in your navigation
+  # Example: If you don't have publications yet, add # before "- title:" and "url:"
+  
+  - title: "Publications"  # Remove this section if you don't have publications
     url: /publications/
 
-  - title: "Talks"
+  - title: "Talks"  # Remove this section if you don't give talks
     url: /talks/    
 
-  - title: "Teaching"
+  - title: "Teaching"  # Remove this section if you don't teach
     url: /teaching/    
     
-  - title: "Portfolio"
+  - title: "Portfolio"  # Remove this section if you don't have a portfolio
     url: /portfolio/
         
-  - title: "Blog Posts"
+  - title: "Blog Posts"  # Remove this section if you don't plan to blog
     url: /year-archive/
     
-  - title: "CV"
+  # Choose ONE CV option (uncomment one, comment out the other)
+  - title: "CV"  # Standard Markdown CV (recommended for most users)
     url: /cv/
     
-  # - title: "CV"
+  # - title: "CV"  # JSON-based CV (alternative format)
   #   url: /cv-json/
     
-  - title: "Guide"
+  - title: "Guide"  # Remove this if you don't want the markdown formatting guide
     url: /markdown/

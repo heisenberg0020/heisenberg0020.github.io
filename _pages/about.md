@@ -1,15 +1,23 @@
 ---
-permalink: /
-title: "Academic Pages is a ready-to-fork GitHub Pages template for academic personal websites"
-author_profile: true
+# TODO: This is the front matter (metadata) for your homepage
+# MODIFY the following fields:
+permalink: /  # Keep this as / to make this your homepage
+title: "Academic Pages is a ready-to-fork GitHub Pages template for academic personal websites"  # MODIFY: Replace with your own title or tagline
+author_profile: true  # Keep as true to show your profile in the sidebar
 redirect_from: 
   - /about/
   - /about.html
 ---
 
+<!-- TODO: Replace the content below with your own introduction and information about yourself -->
+<!-- This is the main content that will appear on your homepage -->
+<!-- You can write in Markdown format - see the Guide page for formatting help -->
+
 This is the front page of a website that is powered by the [Academic Pages template](https://github.com/academicpages/academicpages.github.io) and hosted on GitHub pages. [GitHub pages](https://pages.github.com) is a free service in which websites are built and hosted from code and data stored in a GitHub repository, automatically updating when a new commit is made to the repository. This template was forked from the [Minimal Mistakes Jekyll Theme](https://mmistakes.github.io/minimal-mistakes/) created by Michael Rose, and then extended to support the kinds of content that academics have: publications, talks, teaching, a portfolio, blog posts, and a dynamically-generated CV. Incidentally, these same features make it a great template for anyone that needs to show off a professional template!
 
  You can fork [this template](https://github.com/academicpages/academicpages.github.io) right now, modify the configuration and Markdown files, add your own PDFs and other content, and have your own site for free, with no ads!
+
+<!-- MODIFY: Replace the sections below with your own content -->
 
 A data-driven personal website
 ======
