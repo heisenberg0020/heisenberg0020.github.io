@@ -39,13 +39,13 @@ author:
   # IMPORTANT: Remove or comment out (with #) any profiles you don't have
   academia         : # OPTIONAL: URL to your Academia.edu profile
   arxiv            : # OPTIONAL: URL to your arXiv author page (e.g., "https://arxiv.org/a/lastname_f_1")
-  googlescholar    : "https://scholar.google.com/citations?user=PS_CX0AAAAAJ"  # MODIFY: Replace with your Google Scholar profile URL
+  googlescholar    : # MODIFY: Add your Google Scholar profile URL (e.g., "https://scholar.google.com/citations?user=YOUR_USER_ID")
   inspire-hep      : # OPTIONAL: URL to your INSPIRE-HEP profile
   impactstory      : # OPTIONAL: URL to your ImpactStory profile
   orcid            : "https://orcid.org/yourorcidurl"  # MODIFY: Replace with your actual ORCID URL (e.g., "https://orcid.org/0000-0001-2345-6789")
   semantic         : # OPTIONAL: URL to your Semantic Scholar profile
   ssrn             : # OPTIONAL: URL to your SSRN profile
-  pubmed           : "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"  # MODIFY: Replace with your PubMed search URL or remove if not applicable
+  pubmed           : # OPTIONAL: Your PubMed search URL (e.g., "https://www.ncbi.nlm.nih.gov/pubmed/?term=your+name") or remove if not applicable
   researchgate     : # OPTIONAL: URL to your ResearchGate profile
   scopus           : # OPTIONAL: URL to your Scopus profile
   zotero           : # OPTIONAL: URL to your Zotero profile
@@ -65,7 +65,7 @@ author:
   # TODO: Add your social media usernames/handles
   # Remove or comment out (with #) any platforms you don't use
   artstation       : # OPTIONAL: Your ArtStation username
-  bluesky          : "bsky.app" # MODIFY: Replace with your Bluesky username (e.g., "yourname.bsky.social")
+  bluesky          : # OPTIONAL: Your Bluesky username (e.g., "yourname.bsky.social" or custom domain)
   facebook         : # OPTIONAL: Your Facebook username
   flickr           : # OPTIONAL: Your Flickr username
   foursquare       : # OPTIONAL: Your Foursquare username
