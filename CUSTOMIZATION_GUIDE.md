@@ -119,7 +119,7 @@ Common modifications:
 
 ## Step 6: Optional - Set Up Analytics
 
-**File to modify**: `_config.yml` (lines 157-161)
+**File to modify**: `_config.yml` (lines 169-174)
 
 To track visitors to your site:
 

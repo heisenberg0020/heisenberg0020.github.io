@@ -45,7 +45,7 @@ author:
   orcid            : "https://orcid.org/yourorcidurl"  # MODIFY: Replace with your actual ORCID URL (e.g., "https://orcid.org/0000-0001-2345-6789")
   semantic         : # OPTIONAL: URL to your Semantic Scholar profile
   ssrn             : # OPTIONAL: URL to your SSRN profile
-  pubmed           : # OPTIONAL: Your PubMed search URL (e.g., "https://www.ncbi.nlm.nih.gov/pubmed/?term=your+name") or remove if not applicable
+  pubmed           : # OPTIONAL: Your PubMed search URL (e.g., "https://pubmed.ncbi.nlm.nih.gov/?term=your+name") or remove if not applicable
   researchgate     : # OPTIONAL: URL to your ResearchGate profile
   scopus           : # OPTIONAL: URL to your Scopus profile
   zotero           : # OPTIONAL: URL to your Zotero profile
