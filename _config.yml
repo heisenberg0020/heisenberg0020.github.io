@@ -7,97 +7,107 @@
 # server process.
 
 # Basic Site Settings
-locale                   : "en-US"
-site_theme               : "default" # the available themes options are "default", "air", "sunrise", "mint", "dirt" and "contrast"
-title                    : "Your Name / Site Title"
+# TODO: Modify the following settings to personalize your site
+locale                   : "en-US"  # Change if needed (e.g., "en-GB", "fr-FR")
+site_theme               : "default" # MODIFY: Choose from "default", "air", "sunrise", "mint", "dirt" or "contrast"
+title                    : "Your Name / Site Title"  # MODIFY: Replace with your actual name (e.g., "John Doe")
 title_separator          : "-"
-name                     : &name "Your Name"
-description              : &description "Your Name's academic portfolio"   # Update this with a general description of your site, this is the default if not overridden by a page
-url                      : https://academicpages.github.io # The base hostname & protocol for your site e.g. "https://[your GitHub username].github.io",
-                                                           # or if you already have some other page hosted on Github then use "https://[your GitHub username].github.io/[Your Repo Name]"
-baseurl                  : "" # the subpath of your site, e.g. "/blog"
-repository               : "academicpages/academicpages.github.io"
+name                     : &name "Your Name"  # MODIFY: Replace with your actual name (same as title)
+description              : &description "Your Name's academic portfolio"   # MODIFY: Update with your own description (e.g., "PhD student in Computer Science")
+url                      : https://academicpages.github.io # MODIFY: Replace with "https://[your-github-username].github.io"
+                                                           # Example: "https://heisenberg0020.github.io"
+baseurl                  : "" # Leave empty if your site is at the root (https://username.github.io/)
+repository               : "academicpages/academicpages.github.io"  # MODIFY: Replace with "your-username/your-username.github.io"
 
 # Site Author - The following control what appear as part of the author content on the side bar.
 #               If a field is blank the icon and link will not appear, otherwise it will be shown.
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "profile.png"
-  name             : "Your Sidebar Name"
-  pronouns         : # example: "she/her"  
-  bio              : "Short biography for the left-hand sidebar"
-  location         : "Earth"
-  employer         : "Red Brick University"
-  uri              : # URL
-  email            : "none@example.org" 
+  # TODO: Update all the following fields with your personal information
+  avatar           : "profile.png"  # MODIFY: Add your profile image to /images/ folder and update filename
+  name             : "Your Sidebar Name"  # MODIFY: Replace with your name as you want it to appear in sidebar
+  pronouns         : # OPTIONAL: Add your pronouns (e.g., "she/her", "he/him", "they/them")
+  bio              : "Short biography for the left-hand sidebar"  # MODIFY: Write a brief bio (e.g., "PhD student in AI")
+  location         : "Earth"  # MODIFY: Replace with your city/country (e.g., "San Francisco, CA")
+  employer         : "Red Brick University"  # MODIFY: Replace with your university/company
+  uri              : # OPTIONAL: Your personal website URL (if you have one besides this)
+  email            : "none@example.org"  # MODIFY: Replace with your actual email address 
 
   # Academic websites
-  academia         : # URL
-  arxiv            : # URL - Update with the correct link to your profile
-  googlescholar    : "https://scholar.google.com/citations?user=PS_CX0AAAAAJ"
-  inspire-hep      : # URL
-  impactstory      : # URL
-  orcid            : "https://orcid.org/yourorcidurl"
-  semantic         : # URL
-  ssrn             : # URL
-  pubmed           : "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"
-  researchgate     : # URL
-  scopus           : # URL
-  zotero           : # URL
+  # TODO: Add links to your academic profiles (remove the '#' and add your URL)
+  # IMPORTANT: Remove or comment out (with #) any profiles you don't have
+  academia         : # OPTIONAL: URL to your Academia.edu profile
+  arxiv            : # OPTIONAL: URL to your arXiv author page (e.g., "https://arxiv.org/a/lastname_f_1")
+  googlescholar    : "https://scholar.google.com/citations?user=PS_CX0AAAAAJ"  # MODIFY: Replace with your Google Scholar profile URL
+  inspire-hep      : # OPTIONAL: URL to your INSPIRE-HEP profile
+  impactstory      : # OPTIONAL: URL to your ImpactStory profile
+  orcid            : "https://orcid.org/yourorcidurl"  # MODIFY: Replace with your actual ORCID URL (e.g., "https://orcid.org/0000-0001-2345-6789")
+  semantic         : # OPTIONAL: URL to your Semantic Scholar profile
+  ssrn             : # OPTIONAL: URL to your SSRN profile
+  pubmed           : "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"  # MODIFY: Replace with your PubMed search URL or remove if not applicable
+  researchgate     : # OPTIONAL: URL to your ResearchGate profile
+  scopus           : # OPTIONAL: URL to your Scopus profile
+  zotero           : # OPTIONAL: URL to your Zotero profile
 
 
   # Repositories and software development
-  bitbucket        : # Username - Update with your username on the site
-  codepen          : # Username
-  dribbble         : # Username
-  github           : "academicpages"
-  kaggle           : # Username  
-  stackoverflow    : # User number or user number and name (i.e., use "1" or "1/jeff-atwood")    
+  # TODO: Add your usernames for coding/development platforms
+  # Remove or comment out (with #) any you don't use
+  bitbucket        : # OPTIONAL: Your Bitbucket username
+  codepen          : # OPTIONAL: Your CodePen username
+  dribbble         : # OPTIONAL: Your Dribbble username
+  github           : "academicpages"  # MODIFY: Replace with your GitHub username (e.g., "heisenberg0020")
+  kaggle           : # OPTIONAL: Your Kaggle username
+  stackoverflow    : # OPTIONAL: Your StackOverflow user number (e.g., "123456" or "123456/username")    
 
   # Social media
-  artstation       : # Username
-  bluesky          : "bsky.app" # Replace this with you Bluesky username
-  facebook         : # Username
-  flickr           : # Username
-  foursquare       : # Username
-  goodreads        : # Username
-  google_plus      : # Username
-  keybase          : # Username
-  instagram        : # Username
-  lastfm           : # Username
-  linkedin         : # Username
-  mastodon         : # URL
-  medium           : # URL
-  pinterest        : # Username
-  soundcloud       : # Username
-  steam            : # Username
-  telegram         : # URL
-  tumblr           : # Username
-  twitter          : # Username for X / Twitter
-  vine             : # Username
-  weibo            : # Username
-  wikipedia        : # Username
-  xing             : # Username
-  youtube          : # Username
-  zhihu            : # Username
+  # TODO: Add your social media usernames/handles
+  # Remove or comment out (with #) any platforms you don't use
+  artstation       : # OPTIONAL: Your ArtStation username
+  bluesky          : "bsky.app" # MODIFY: Replace with your Bluesky username (e.g., "yourname.bsky.social")
+  facebook         : # OPTIONAL: Your Facebook username
+  flickr           : # OPTIONAL: Your Flickr username
+  foursquare       : # OPTIONAL: Your Foursquare username
+  goodreads        : # OPTIONAL: Your Goodreads username
+  google_plus      : # OPTIONAL: Your Google+ username (deprecated)
+  keybase          : # OPTIONAL: Your Keybase username
+  instagram        : # OPTIONAL: Your Instagram username
+  lastfm           : # OPTIONAL: Your Last.fm username
+  linkedin         : # OPTIONAL: Your LinkedIn username (e.g., "john-doe-123456")
+  mastodon         : # OPTIONAL: Your Mastodon profile URL
+  medium           : # OPTIONAL: Your Medium URL or username
+  pinterest        : # OPTIONAL: Your Pinterest username
+  soundcloud       : # OPTIONAL: Your SoundCloud username
+  steam            : # OPTIONAL: Your Steam username
+  telegram         : # OPTIONAL: Your Telegram profile URL
+  tumblr           : # OPTIONAL: Your Tumblr username
+  twitter          : # OPTIONAL: Your X/Twitter username (without @)
+  vine             : # OPTIONAL: Your Vine username (deprecated)
+  weibo            : # OPTIONAL: Your Weibo username
+  wikipedia        : # OPTIONAL: Your Wikipedia username
+  xing             : # OPTIONAL: Your Xing username
+  youtube          : # OPTIONAL: Your YouTube channel username or ID
+  zhihu            : # OPTIONAL: Your Zhihu username
 
 # Publication Category - The following the list of publication categories and their headings
+# TODO: Customize these categories based on your publication types
+# You can add/remove categories or change titles as needed
 publication_category:
   books:
-    title: 'Books'
+    title: 'Books'  # MODIFY: Change if needed or remove if you don't have books
   manuscripts:
-    title: 'Journal Articles'    
+    title: 'Journal Articles'  # MODIFY: Change title if preferred (e.g., "Peer-Reviewed Articles")
   conferences:
-    title: 'Conference Papers'
+    title: 'Conference Papers'  # MODIFY: Change title if preferred (e.g., "Conference Proceedings")
 
 # Site Settings
-teaser                   :  # filename of teaser fallback teaser image placed in /images/ for social media previews
-breadcrumbs              : false # true, false (default)
-words_per_minute         : 160
+teaser                   :  # OPTIONAL: filename of teaser fallback image in /images/ for social media previews
+breadcrumbs              : false # MODIFY: Set to 'true' if you want breadcrumb navigation
+words_per_minute         : 160  # Used to calculate reading time for posts
 future                   : true
-read_more                : "disabled" # if enabled, adds "Read more" links to excerpts
-talkmap_link             : false      #change to true to add link to talkmap on talks page
+read_more                : "disabled" # MODIFY: Set to "enabled" to add "Read more" links to excerpts
+talkmap_link             : false      # MODIFY: Set to 'true' to add link to talkmap on talks page
 comments:
   provider               : # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "custom"
   disqus:
@@ -130,10 +140,12 @@ atom_feed:
 
 
 # SEO Related
-google_site_verification :
-bing_site_verification   :
-alexa_site_verification  :
-yandex_site_verification :
+# TODO: Add verification codes if you want to track your site with these services
+# To get these codes, sign up for each service and add your site
+google_site_verification :  # OPTIONAL: Add Google Search Console verification code
+bing_site_verification   :  # OPTIONAL: Add Bing Webmaster Tools verification code
+alexa_site_verification  :  # OPTIONAL: Add Alexa verification code
+yandex_site_verification :  # OPTIONAL: Add Yandex verification code
 
 
 # Social Sharing
@@ -154,10 +166,12 @@ social:
 
 
 # Analytics
+# TODO: Set up Google Analytics to track your site visitors (optional but recommended)
+# To enable: Change provider to "google-analytics-4", sign up at analytics.google.com, and add your tracking ID
 analytics:
-  provider               :  "false" # false (default), "google", "google-universal", "google-analytics-4", "custom"
+  provider               :  "false" # MODIFY: Change to "google-analytics-4" to enable tracking
   google:
-    tracking_id          :
+    tracking_id          :  # MODIFY: Add your Google Analytics 4 measurement ID (e.g., "G-XXXXXXXXXX")
 
 
 # Reading Files
