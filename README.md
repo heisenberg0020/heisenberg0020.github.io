@@ -3,12 +3,24 @@
 
 ![Academic Pages template example](images/themes/homepage-light.png "Academic Pages template example")
 
+# 📝 Customization Guide
+
+**👉 NEW: See [CUSTOMIZATION_GUIDE.md](CUSTOMIZATION_GUIDE.md) for a complete step-by-step guide on customizing your website!**
+
+This guide includes:
+- ✅ Complete checklist of what to modify
+- 📍 Exact file locations and line numbers
+- 💡 Examples and tips for each section
+- 🚀 Quick start instructions
+
+All key configuration files (`_config.yml`, `_data/navigation.yml`, `_pages/about.md`) now include helpful `# TODO:` and `# MODIFY:` comments to guide you through customization.
+
 # Getting Started
 
 1. Register a GitHub account if you don't have one and confirm your e-mail (required!)
 1. Click the "Use this template" button in the top right.
 1. On the "New repository" page, enter your public repository name as "[your GitHub username].github.io", which will also be your website's URL.
-1. Set site-wide configuration and add your content.
+1. **Follow the [CUSTOMIZATION_GUIDE.md](CUSTOMIZATION_GUIDE.md) to personalize your site** - look for `# TODO:` and `# MODIFY:` comments in the config files
 1. Upload any files (like PDFs, .zip files, etc.) to the `files/` directory. They will appear at https://[your GitHub username].github.io/files/example.pdf.
 1. Check status by going to the repository settings, in the "GitHub pages" section
 1. (Optional) Use the Jupyter notebooks or python scripts in the `markdown_generator` folder to generate markdown files for publications and talks from a TSV file.
