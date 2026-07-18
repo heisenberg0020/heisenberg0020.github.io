@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Academic personal homepage" />
+    <meta name="theme-color" content="#f7f6f2" />
+    <title>Academic Homepage</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="content.js" defer></script>
+    <script src="assets/js/main.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="wordmark" href="#about" aria-label="Go to About">
+          <span class="wordmark-mark" aria-hidden="true"></span>
+          <span data-content="name">Your Name</span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+          <span></span><span></span><span></span>
+          <span class="sr-only">Toggle navigation</span>
+        </button>
+
+        <nav id="site-nav" class="site-nav" aria-label="Main navigation">
+          <a href="#about">About</a>
+          <a href="#research">Research</a>
+          <a href="#publications">Publications</a>
+          <a href="#interests">Interests</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="page-shell">
+      <aside class="profile-card" aria-label="Profile">
+        <div class="portrait-wrap">
+          <img id="profile-photo" class="portrait" alt="" hidden />
+          <div id="profile-placeholder" class="portrait-placeholder" aria-hidden="true">
+            <span data-content="initials">YN</span>
+          </div>
+        </div>
+
+        <h1 data-content="name">Your Name</h1>
+        <p class="profile-title" data-content="title">Your title or short bio</p>
+
+        <dl class="profile-facts">
+          <div>
+            <dt>Based in</dt>
+            <dd data-content="location">City, Country</dd>
+          </div>
+          <div>
+            <dt>Affiliation</dt>
+            <dd data-content="affiliation">Your Institution</dd>
+          </div>
+        </dl>
+
+        <div id="profile-links" class="profile-links" aria-label="Profile links"></div>
+      </aside>
+
+      <main id="main-content" class="main-content">
+        <section id="about" class="content-section hero-section">
+          <p class="eyebrow">Hello, I’m</p>
+          <h2 data-content="name">Your Name</h2>
+          <p class="lead" data-content="tagline">A one-sentence introduction to your work.</p>
+          <div id="about-content" class="prose"></div>
+        </section>
+
+        <section id="research" class="content-section">
+          <div class="section-heading">
+            <p class="section-number">01</p>
+            <h2>Research</h2>
+          </div>
+          <p class="section-intro" data-content="researchIntro"></p>
+          <div id="research-list" class="card-grid"></div>
+        </section>
+
+        <section id="publications" class="content-section">
+          <div class="section-heading">
+            <p class="section-number">02</p>
+            <h2>Selected Publications</h2>
+          </div>
+          <p class="section-intro">A selection of recent and representative work.</p>
+          <ol id="publications-list" class="publication-list"></ol>
+        </section>
+
+        <section id="interests" class="content-section">
+          <div class="section-heading">
+            <p class="section-number">03</p>
+            <h2>Interests</h2>
+          </div>
+          <p class="section-intro" data-content="interestsIntro"></p>
+          <div id="interests-list" class="interest-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <p>© <span id="current-year"></span> <span data-content="name">Your Name</span></p>
+      <p>Built as a lightweight academic homepage.</p>
+    </footer>
+  </body>
+</html>
