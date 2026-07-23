@@ -16,6 +16,18 @@
 
 window.BLOG_POSTS = [
   {
+    slug: "human-agent-research-engineering-workflow",
+    type: "essay",
+    date: "2026-07-23",
+    title: "Human–Agent Research Engineering: A Practical Workflow",
+    summary: "A bilingual field guide for turning a research idea into auditable experiment code with coding agents—from frozen protocols and test-driven implementation to scientific evidence and the final Claim Gate.",
+    tags: ["AI Agents", "Research Engineering", "Code Audit", "Bilingual"],
+    meta: "Bilingual essay · 中文 / English · 35 min read",
+    url: "",
+    contentUrl: "essays/human-agent-research-engineering-workflow.html",
+    body: [],
+  },
+  {
     slug: "research-code-stewardship-lab",
     type: "project",
     date: "2026-07-21",

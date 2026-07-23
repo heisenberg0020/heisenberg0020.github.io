@@ -44,6 +44,16 @@
   const destination = (post) =>
     post.url || `blog.html?post=${encodeURIComponent(post.slug)}`;
 
+  const loadPostBody = async (post) => {
+    if (!post.contentUrl) return (post.body || []).join("");
+
+    const response = await fetch(post.contentUrl, { cache: "no-cache" });
+    if (!response.ok) {
+      throw new Error(`Unable to load essay content (${response.status})`);
+    }
+    return response.text();
+  };
+
   const renderList = (filter = "all") => {
     const list = document.getElementById("blog-list");
     const visiblePosts = posts.filter((post) => filter === "all" || post.type === filter);
@@ -78,9 +88,18 @@
     }
   };
 
-  const showPost = (slug) => {
+  const showPost = async (slug) => {
     const post = posts.find((item) => item.slug === slug && !item.url);
     if (!post) return false;
+
+    let body;
+    try {
+      body = await loadPostBody(post);
+    } catch (error) {
+      console.error(error);
+      body =
+        '<p class="content-error">The essay could not be loaded. Please return to the blog index and try again.</p>';
+    }
 
     document.getElementById("blog-index").hidden = true;
     const postView = document.getElementById("post-view");
@@ -96,15 +115,12 @@
         ${post.meta ? `<p class="blog-byline">${escapeHtml(post.meta)}</p>` : ""}
         ${tags ? `<div class="blog-tags">${tags}</div>` : ""}
       </header>
-      <div class="post-body">${(post.body || []).join("")}</div>
+      <div class="post-body">${body}</div>
     `;
     postView.hidden = false;
     document.title = `${post.title} — ${site.name || "Your Name"}`;
     return true;
   };
-
-  const postSlug = new URLSearchParams(window.location.search).get("post");
-  if (!postSlug || !showPost(postSlug)) renderList();
 
   document.querySelectorAll("[data-filter]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -114,4 +130,11 @@
       renderList(button.dataset.filter);
     });
   });
+
+  const initialize = async () => {
+    const postSlug = new URLSearchParams(window.location.search).get("post");
+    if (!postSlug || !(await showPost(postSlug))) renderList();
+  };
+
+  initialize();
 })();

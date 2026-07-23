@@ -1,0 +1,1931 @@
+<nav class="essay-language-nav" aria-label="Essay language">
+  <strong>Language / 语言</strong>
+  <a href="#zh-cn">中文版</a>
+  <a href="#english">English</a>
+</nav>
+<p class="essay-introduction">
+  This bilingual field guide applies the four-level Research Code Stewardship framework to the complete lifecycle of a real human–agent research project. 中文版在前，英文版在后；两版均包含可直接使用的流程、审核 Gate、Prompt 与清单。
+</p>
+<section id="zh-cn" class="essay-language-section" lang="zh-CN">
+<h1>科研 Idea 使用 Coding Agent 构建实验代码的最佳实践</h1>
+<blockquote>
+<p>人机协作研究工程工作流：从研究问题、实验协议、测试驱动实现，到科学证据与最终主张审核</p>
+</blockquote>
+<p>版本：1.0</p>
+<p>适用对象：研究生、研究程序员、研究工程师、PI、实验负责人，以及监督 Coding Agent 的项目维护者</p>
+<p>适用任务：机器学习、推荐系统、NLP、计算机视觉、图学习、强化学习、数据科学及其他“研究 Idea + 实验代码 + 结果主张”项目</p>
+<p><a href="#english">English version</a></p>
+<hr>
+<h2>0. 这份流程解决什么问题</h2>
+<p>Coding Agent 能显著提高代码阅读、框架搭建、模块实现、测试、调试、训练运维和结果整理的速度。但科研项目的失败，往往不是因为代码无法运行，而是因为：</p>
+<ul>
+<li>实现的问题与原始研究问题发生了偏移；</li>
+<li>公式、loss、mask、索引或梯度路径在细节上错误；</li>
+<li>数据切分、样本身份、缓存或 checkpoint 破坏了实验边界；</li>
+<li>baseline 的信息、调参预算或停止条件不公平；</li>
+<li>test set 或其他受保护证据被用于模型选择；</li>
+<li>失败运行、负结果或异常样本没有被完整保留；</li>
+<li>最终论文主张超过了实验真正支持的范围；</li>
+<li>Agent 在没有批准的情况下改变了数据、模型、指标、预算或研究假设。</li>
+</ul>
+<p>因此，最有效的人机协作不是：</p>
+<blockquote>
+<p>人提出一个模糊 Idea → Agent 自由实现和优化 → 人只检查最终指标。</p>
+</blockquote>
+<p>而是：</p>
+<blockquote>
+<p>人冻结研究问题、科学协议、权限和验收标准；Agent 承担高带宽实现、测试与运维；机械检查持续验证不变量；人根据完整证据批准每一次科学含义发生改变的决策，并对最终主张负责。</p>
+</blockquote>
+<p>本文把这套协作方式整理成一套可以直接用于真实科研项目的工作流。</p>
+<hr>
+<h2>1. 核心原则</h2>
+<h3>1.1 Agent 负责执行带宽，人负责科学控制权</h3>
+<p>Agent 适合承担：</p>
+<ul>
+<li>阅读论文、代码、配置、日志和数据说明；</li>
+<li>把冻结规格转换成项目结构、接口和实现；</li>
+<li>编写单元测试、集成测试、性质测试和回归测试；</li>
+<li>运行 smoke test、baseline、消融和批准范围内的搜索；</li>
+<li>监控实验、处理中断、恢复 checkpoint；</li>
+<li>汇总运行记录、生成表格和图表草稿；</li>
+<li>根据明确失败证据修复普通工程问题。</li>
+</ul>
+<p>人必须控制：</p>
+<ul>
+<li>研究问题、目标变量和成功标准；</li>
+<li>数据版本、独立实验单位、split 和泄漏边界；</li>
+<li>模型、loss、指标、baseline 和候选集合的科学定义；</li>
+<li>调参预算、停止条件、checkpoint 选择和 test 使用规则；</li>
+<li>哪些改变可以自动执行，哪些必须事前审批；</li>
+<li>统计方法、实际意义阈值和允许的 Claim；</li>
+<li>论文结论、因果解释、伦理与最终发布。</li>
+</ul>
+<h3>1.2 先冻结协议，再让 Agent 写代码</h3>
+<p>如果输入给 Agent 的只有“实现这个 Idea 并把指标做高”，Agent 就不得不替人补全大量隐含决策。它可能生成高质量代码，却实现了错误或不断变化的问题。</p>
+<p>在第一行生产代码出现之前，至少应冻结：</p>
+<ol>
+<li>研究问题与主要假设；</li>
+<li>数据和独立单位；</li>
+<li>训练、验证、测试边界；</li>
+<li>主要模型与 baseline 条件；</li>
+<li>loss、指标和候选集合；</li>
+<li>调参预算与停止规则；</li>
+<li>重复实验和统计分析方案；</li>
+<li>受保护证据的使用规则；</li>
+<li>Agent 的权限、资源和审批边界；</li>
+<li>允许报告的最强结论。</li>
+</ol>
+<h3>1.3 测试通过不等于科学正确</h3>
+<p>测试只能证明“测试中编码的规则成立”。如果规格本身错误，测试可能稳定验证一个错误系统。</p>
+<p>因此每个项目需要同时拥有：</p>
+<ul>
+<li><strong>实现测试</strong>：代码是否满足接口、shape、数值和状态要求；</li>
+<li><strong>协议测试</strong>：数据、评估、预算和运行过程是否遵守冻结规则；</li>
+<li><strong>科学审核</strong>：比较是否公平、统计单位是否正确、证据是否足以支持 Claim；</li>
+<li><strong>治理审核</strong>：改变是否获得批准，失败和负结果是否被保留。</li>
+</ul>
+<h3>1.4 所有重要结论必须可追溯</h3>
+<p>任何“实现正确”“实验完成”“方法更好”或“可以写进论文”的判断，都应能追溯到：</p>
+<ul>
+<li>规格条款或论文位置；</li>
+<li>代码、配置和 commit；</li>
+<li>数据、环境和依赖版本；</li>
+<li>测试名称和测试结果；</li>
+<li><code>run_id</code>、随机种子和 checkpoint；</li>
+<li>原始日志和运行账本；</li>
+<li>聚合脚本和统计规则；</li>
+<li>Claim 引用的具体 evidence IDs；</li>
+<li>人工审批和决策记录。</li>
+</ul>
+<p>不能追溯的结果，只能视为线索，不能视为可信证据。</p>
+<hr>
+<h2>2. 总体流程图</h2>
+<figure class="workflow-figure"><a href="essays/assets/human-agent-research-workflow-zh-CN.svg" target="_blank" rel="noopener"><img src="essays/assets/human-agent-research-workflow-zh-CN.svg" alt="人类与 Coding Agent 科研工程协作流程图" loading="lazy"></a><figcaption>人类与 Coding Agent 科研工程协作流程图（点击查看完整尺寸 / Open full-size diagram）</figcaption></figure>
+
+<p>这张图中最重要的不是 Agent 节点，而是多个 Gate。Agent 可以在 Gate 之间自主高效执行，但不能自行取消 Gate，也不能因为结果不好而改变 Gate 中冻结的科学规则。</p>
+<hr>
+<h2>3. 四层合同：审核 Agent 代码的统一框架</h2>
+<p>整个项目应同时维护四层合同。某个问题属于哪一层，以它<strong>最先破坏的合同</strong>为准，而不是以下游影响大小为准。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>合同对象</th>
+<th>核心问题</th>
+<th>首选证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Level 1</td>
+<td>公式、算子、索引、mask、loss、梯度</td>
+<td>局部算法是否忠实实现数学定义？</td>
+<td>极小张量、性质测试、有限差分、梯度检查</td>
+</tr>
+<tr>
+<td>Level 2</td>
+<td>数据身份、split、缓存、状态、checkpoint、评估</td>
+<td>自动流水线是否保持身份、状态和受保护边界？</td>
+<td>数据血缘、联合 fingerprint、事件顺序、独立重算</td>
+</tr>
+<tr>
+<td>Level 3</td>
+<td>baseline、信息条件、预算、实验单位、统计、Claim</td>
+<td>比较是否公平，完整证据是否支持结论？</td>
+<td>计划矩阵、run ledger、配置签名、预登记统计规则</td>
+</tr>
+<tr>
+<td>Level 4</td>
+<td>权限、审批、资源、停止条件、记录、受保护证据</td>
+<td>Agent 的行动是否被授权并可完整审计？</td>
+<td>冻结协议、审批链、event log、资源和报告重建</td>
+</tr>
+</tbody></table>
+<h3>3.1 Level 1：算法语义</h3>
+<p>人工审核重点：</p>
+<ul>
+<li>公式中的每个符号映射到哪个 tensor；</li>
+<li>shape、axis、广播和 reduction 是否正确；</li>
+<li>padding、非法位置或未来信息是否被 mask；</li>
+<li>loss 接收 logits、probabilities 还是其他量；</li>
+<li>label、item ID、special token 和 offset 空间是否一致；</li>
+<li><code>.detach()</code>、冻结参数、in-place 操作或 optimizer 参数遗漏是否切断梯度；</li>
+<li>train/eval 模式是否改变了算法语义。</li>
+</ul>
+<p>Agent 应交付：</p>
+<ul>
+<li>公式到代码的映射表；</li>
+<li>shape/axis/mask/target/loss/gradient contract；</li>
+<li>极小可手算样例；</li>
+<li>性质测试和梯度测试；</li>
+<li>对每个非显然实现选择的证据说明。</li>
+</ul>
+<h3>3.2 Level 2：流水线完整性</h3>
+<p>人工审核重点：</p>
+<ul>
+<li>split 是否发生在正确的独立实体上，而不是扩增、窗口化之后；</li>
+<li>多模态、feature、label 和 ID 是否被联合排列；</li>
+<li>缓存是否绑定正确的数据版本、配置和 split；</li>
+<li>resume 是否恢复 optimizer、scheduler、epoch 和随机状态；</li>
+<li>checkpoint 是否只依据允许的 validation 证据选择；</li>
+<li>miss、失败或空候选是否仍保留在指标分母；</li>
+<li>test/protected evaluation 是否发生在模型选择之后，且未反馈到开发。</li>
+</ul>
+<p>Agent 应交付：</p>
+<ul>
+<li>数据和样本身份 manifest；</li>
+<li>split 与派生样本的 lineage；</li>
+<li>batch 前后联合 fingerprint；</li>
+<li>每 epoch 的训练/验证状态；</li>
+<li>checkpoint 选择依据；</li>
+<li>每个评估样本的记录，包括零值和失败；</li>
+<li>有序事件日志。</li>
+</ul>
+<h3>3.3 Level 3：科学有效性</h3>
+<p>人工审核重点：</p>
+<ul>
+<li>baseline 是否拥有同等数据、特征、候选集合和外部信息；</li>
+<li>方法之间调参次数、GPU 时间、early stopping 和人工关注是否公平；</li>
+<li>失败运行和负结果是否仍在计划总体和账本中；</li>
+<li>排除规则是否事前冻结；</li>
+<li>seed、epoch、checkpoint、window 或 crop 是否被错误当成独立科学样本；</li>
+<li>配对关系和统计方法是否正确；</li>
+<li>效应量、置信区间、实际意义阈值和多重比较是否被处理；</li>
+<li>Claim 是否超过数据集、任务、指标和实验范围。</li>
+</ul>
+<p>Agent 应交付四个分离层：</p>
+<ol>
+<li><code>planned_runs</code>：预先冻结的完整运行总体；</li>
+<li><code>runs</code>：每次实际运行、状态、结果、纳入与排除理由；</li>
+<li><code>aggregate</code>：可从声明纳入行精确重算的聚合；</li>
+<li><code>claim</code>：范围、阈值、统计结果和精确 evidence run IDs。</li>
+</ol>
+<h3>3.4 Level 4：实验治理</h3>
+<p>人工审核重点：</p>
+<ul>
+<li>改变发生前是否存在明确批准；</li>
+<li>批准的状态、时间、scope 和资源 limits 是否覆盖实际行动；</li>
+<li>Agent 是否超出运行次数、时间、GPU 或 API 预算；</li>
+<li>是否删除、覆盖或隐瞒失败与负结果；</li>
+<li>test/protected evidence 是否流入后续 adaptive action；</li>
+<li>多 Agent 是否使用同一冻结协议；</li>
+<li>遇到关键歧义或越界请求时是否停止并请求审批。</li>
+</ul>
+<p>Agent 应交付：</p>
+<ul>
+<li>带稳定 clause ID 的冻结协议；</li>
+<li>按时间排序的 Agent event log；</li>
+<li>审批状态、scope、limits 和决定时间；</li>
+<li>完整 run ledger 和资源使用；</li>
+<li>从 ledger 重新生成的 report manifest；</li>
+<li>受保护证据到后续行动的显式引用关系。</li>
+</ul>
+<hr>
+<h2>4. 人与 Agent 的职责分工</h2>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>Agent 可以直接执行</th>
+<th>需要人工事前批准</th>
+<th>只能由人最终决定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>需求整理</td>
+<td>识别歧义、生成规格草案</td>
+<td>研究问题和成功标准</td>
+<td>Idea 是否值得研究</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>提议模块、接口、目录和测试</td>
+<td>数据合同和科学边界</td>
+<td>系统是否代表正确问题</td>
+</tr>
+<tr>
+<td>数据代码</td>
+<td>下载、解析、清洗和缓存实现</td>
+<td>数据版本、split 单位、排除规则</td>
+<td>合法性、伦理与泄漏边界</td>
+</tr>
+<tr>
+<td>模型实现</td>
+<td>编写模块、forward、loss 和测试</td>
+<td>主要结构、目标函数和假设</td>
+<td>数学定义是否符合研究意图</td>
+</tr>
+<tr>
+<td>调试</td>
+<td>修复明确的实现和环境失败</td>
+<td>会改变科学含义的修复</td>
+<td>是否接受偏离原计划</td>
+</tr>
+<tr>
+<td>实验运行</td>
+<td>运行批准矩阵、恢复中断、记账</td>
+<td>搜索空间、预算、停止条件</td>
+<td>是否扩大实验范围</td>
+</tr>
+<tr>
+<td>checkpoint</td>
+<td>保存、恢复和批量评估</td>
+<td>选择规则和证据角色</td>
+<td>哪个模型可以进入最终测试</td>
+</tr>
+<tr>
+<td>结果整理</td>
+<td>重算、画图、生成报告草稿</td>
+<td>聚合和统计规则</td>
+<td>如何解释结果</td>
+</tr>
+<tr>
+<td>论文写作</td>
+<td>生成文字和表格草案</td>
+<td>Claim 范围</td>
+<td>创新性、因果性和最终结论</td>
+</tr>
+<tr>
+<td>Agent 协作</td>
+<td>分解独立读任务和测试</td>
+<td>写权限、路径和共享协议</td>
+<td>是否允许自主扩大行动</td>
+</tr>
+</tbody></table>
+<h3>4.1 默认允许自动执行</h3>
+<p>在冻结规格内，通常可以允许 Agent：</p>
+<ul>
+<li>添加或修改实现代码；</li>
+<li>添加测试、类型、日志和诊断；</li>
+<li>修复可由失败测试证明的普通 bug；</li>
+<li>做不改变行为的重构；</li>
+<li>运行批准的 smoke test 和小规模调试；</li>
+<li>在批准的运行矩阵内启动、恢复和汇总实验；</li>
+<li>生成不带最终科学判断的图表和报告草稿。</li>
+</ul>
+<h3>4.2 必须在改变前审批</h3>
+<p>以下变化不能只在完成后通知：</p>
+<ul>
+<li>数据源、数据清洗、标签定义或 split；</li>
+<li>样本构造、负采样、候选集合或过滤；</li>
+<li>模型结构、主要 loss、优化目标或训练任务；</li>
+<li>baseline 输入信息、预训练资源或调参预算；</li>
+<li>metric、分母、聚合单位或统计方法；</li>
+<li>checkpoint、early stopping 或 test 使用规则；</li>
+<li>搜索范围、seed 数、GPU/API/时间预算；</li>
+<li>删除异常样本、失败运行或负结果；</li>
+<li>因结果不理想而更换主要假设或研究问题。</li>
+</ul>
+<h3>4.3 默认禁止</h3>
+<ul>
+<li>使用最终测试结果选择模型或超参数；</li>
+<li>把 test 指标反馈给后续自适应开发；</li>
+<li>静默修改冻结协议；</li>
+<li>覆盖原始日志、配置、checkpoint 或结果文件；</li>
+<li>只保留最好的 seed、epoch 或运行；</li>
+<li>删除失败、取消或负结果的记录；</li>
+<li>在未经授权的目录、数据或网络范围内操作；</li>
+<li>把缺少批准解释成已经批准；</li>
+<li>把生成的表格直接写成因果或普遍性结论。</li>
+</ul>
+<hr>
+<h2>5. 推荐的项目产物</h2>
+<p>一个可审计的人机协作科研项目，建议至少具有以下结构：</p>
+<pre><code class="language-text">research-project/
+├── README.md
+├── GOVERNANCE/
+│   ├── RESEARCH_SPEC.md              # 研究问题、假设、成功标准
+│   ├── FROZEN_PROTOCOL.yaml          # 数据、模型、指标、预算和停止规则
+│   ├── APPROVALS.jsonl               # 事前批准记录
+│   ├── DECISION_LOG.md               # 人工决策、理由和替代方案
+│   └── RISK_REGISTER.md              # 已知风险、未决假设、严重度
+├── DESIGN/
+│   ├── ARCHITECTURE.md
+│   ├── PAPER_TO_CODE_MAP.md
+│   ├── DATA_CONTRACT.md
+│   ├── TENSOR_CONTRACT.md
+│   └── ACCEPTANCE_CRITERIA.md
+├── src/
+├── tests/
+│   ├── unit/
+│   ├── properties/
+│   ├── gradients/
+│   ├── integration/
+│   └── protocol/
+├── experiments/
+│   ├── planned_runs.csv
+│   ├── configs/
+│   ├── run_ledger.csv
+│   ├── events.jsonl
+│   └── raw_results/
+├── analysis/
+│   ├── aggregate.py
+│   ├── aggregate.csv
+│   ├── claims.json
+│   └── figures/
+├── reports/
+│   ├── REPORT_MANIFEST.json
+│   └── LIMITATIONS.md
+└── audits/
+    ├── LEVEL1_ALGORITHM.md
+    ├── LEVEL2_PIPELINE.md
+    ├── LEVEL3_SCIENTIFIC_VALIDITY.md
+    ├── LEVEL4_GOVERNANCE.md
+    └── RELEASE_CHECKLIST.md
+</code></pre>
+<p>不要求所有项目机械采用同样文件名，但必须能够回答：</p>
+<ul>
+<li>研究协议在哪里；</li>
+<li>谁在什么时候批准了什么；</li>
+<li>哪些运行原计划应存在；</li>
+<li>实际运行了什么；</li>
+<li>哪些结果被纳入或排除，为什么；</li>
+<li>聚合结果如何从原始运行重算；</li>
+<li>每个 Claim 引用了哪些证据；</li>
+<li>Agent 做过哪些改变；</li>
+<li>最终发布经过了哪些 Gate。</li>
+</ul>
+<hr>
+<h2>6. 八个 Gate 的详细执行流程</h2>
+<h3>Gate 0：Idea 与研究问题冻结</h3>
+<h4>人类输入</h4>
+<ul>
+<li>要解决的科学问题；</li>
+<li>为什么现有方法不足；</li>
+<li>主要假设和最小可证伪形式；</li>
+<li>目标数据、任务和评价对象；</li>
+<li>成功、失败和无结论分别意味着什么。</li>
+</ul>
+<h4>Agent 工作</h4>
+<ul>
+<li>把 Idea 拆成明确的研究问题；</li>
+<li>列出歧义、隐含假设、替代解释和不可识别因素；</li>
+<li>区分“论文主张”“工程目标”和“探索性问题”；</li>
+<li>生成规格草案和风险清单；</li>
+<li>明确需要人决定的选项，不擅自选择。</li>
+</ul>
+<h4>必须产物</h4>
+<ul>
+<li><code>RESEARCH_SPEC.md</code>；</li>
+<li>初始假设账本；</li>
+<li>允许 Claim 的初始范围；</li>
+<li>未决问题和 stop conditions。</li>
+</ul>
+<h4>通过条件</h4>
+<p>研究问题能够被清楚地证伪；主要结果不是“指标越高越好”这种未限定目标；关键术语和研究单位已有定义。</p>
+<hr>
+<h3>Gate 1：科学协议与 Agent 权限冻结</h3>
+<h4>人类必须冻结</h4>
+<ul>
+<li>数据版本、纳入/排除标准和独立单位；</li>
+<li>train/validation/test 或对应受保护边界；</li>
+<li>模型、loss、baseline、候选集合和 metric；</li>
+<li>调参空间、最大 trials、预算单位和停止条件；</li>
+<li>重复次数、seed、配对结构和统计分析；</li>
+<li>哪些结果是探索性、确认性或最终证据；</li>
+<li>Agent 可以自动做什么、改变什么必须重新批准。</li>
+</ul>
+<h4>Agent 工作</h4>
+<ul>
+<li>将自然语言协议转换为机器可读配置；</li>
+<li>为每条关键规则建立稳定 clause ID；</li>
+<li>检查协议内部矛盾和缺失；</li>
+<li>生成审批矩阵和运行计划草案；</li>
+<li>对资源、依赖、数据和权限做可行性检查。</li>
+</ul>
+<h4>通过条件</h4>
+<p>不存在需要 Agent 在实现阶段自行猜测的重大科学决策；所有关键改变都有明确审批路径。</p>
+<hr>
+<h3>Gate 2：架构、合同与测试设计审核</h3>
+<h4>Agent 工作</h4>
+<ul>
+<li>生成模块边界、接口和数据流；</li>
+<li>建立论文/Idea 到代码位置的映射；</li>
+<li>定义 tensor、数据、状态和评估合同；</li>
+<li>先编写验收测试、性质测试和最小反例；</li>
+<li>运行测试并记录正确的 RED：失败应来自缺失行为，而不是语法或环境故障。</li>
+</ul>
+<h4>人工审核</h4>
+<ul>
+<li>测试验证的是冻结协议，而不是 Agent 自己发明的替代协议；</li>
+<li>每条高风险规则至少有一个便宜、明确的证明方式；</li>
+<li>不会只靠完整训练判断局部正确性；</li>
+<li>test/protected evidence 没有被引入开发路径；</li>
+<li>未覆盖假设已显式记录。</li>
+</ul>
+<h4>通过条件</h4>
+<p>实现可以被客观验收；关键算法和流水线错误可以在小规模运行中被证伪。</p>
+<hr>
+<h3>Gate 3：Level 1 算法实现审核</h3>
+<h4>推荐 TDD 循环</h4>
+<ol>
+<li>选择一个小而明确的实现任务；</li>
+<li>写下输入、输出、shape、数学性质和梯度要求；</li>
+<li>先运行相关测试并确认 RED；</li>
+<li>Agent 做最小实现；</li>
+<li>运行 focused tests；</li>
+<li>运行组合回归；</li>
+<li>Agent 自审 diff、风险和未测试路径；</li>
+<li>人工核对公式和极小反例；</li>
+<li>只有证据通过才合入下一任务。</li>
+</ol>
+<h4>强制检查</h4>
+<ul>
+<li>正常样本、边界样本、全 mask、空集合和重复值；</li>
+<li>integer/float target 的合法输入边界；</li>
+<li>数值稳定性和 NaN/Inf；</li>
+<li>对称性、不变性、单调性或守恒性质；</li>
+<li>有限差分与 autograd；</li>
+<li>预期更新参数和不应更新参数；</li>
+<li>train/eval、CPU/GPU 和 dtype 差异。</li>
+</ul>
+<h4>通过条件</h4>
+<p>不是“loss 会下降”，而是局部数学定义已经被独立证据验证。</p>
+<hr>
+<h3>Gate 4：Level 2 流水线审核</h3>
+<h4>审核顺序</h4>
+<ol>
+<li>从原始独立实体开始追踪身份；</li>
+<li>检查 split 发生时机；</li>
+<li>追踪所有派生样本、window、augmentation 或 negative；</li>
+<li>验证 feature、label、ID 和 mask 的联合对齐；</li>
+<li>检查 cache key 和数据/config hash；</li>
+<li>模拟中断并验证 resume 等价性；</li>
+<li>追踪 checkpoint 选择证据；</li>
+<li>从逐样本记录独立重算指标；</li>
+<li>确认 protected evaluation 没有参与选择；</li>
+<li>对失败、miss 和空样本检查分母完整性。</li>
+</ol>
+<h4>通过条件</h4>
+<p>任意最终指标都能沿 lineage 回到原始独立实体、实际 checkpoint、明确配置和完整评估总体。</p>
+<hr>
+<h3>Gate 5：实验运行授权</h3>
+<p>在开始正式实验前，应生成冻结的 <code>planned_runs</code>，每一行至少包含：</p>
+<ul>
+<li><code>run_id</code>；</li>
+<li>方法和配置 hash；</li>
+<li>数据与代码 commit；</li>
+<li>pair/block/independent unit；</li>
+<li>seed；</li>
+<li>运行角色：debug、tuning、validation、final；</li>
+<li>最大资源和 timeout；</li>
+<li>允许读取的证据；</li>
+<li>预期产物；</li>
+<li>失败后的处理规则。</li>
+</ul>
+<p>Agent 只能：</p>
+<ul>
+<li>执行矩阵中的运行；</li>
+<li>恢复同一运行；</li>
+<li>在批准范围内重试基础设施故障；</li>
+<li>记录失败并请求决策。</li>
+</ul>
+<p>Agent 不能因为结果不好而：</p>
+<ul>
+<li>增加 trials；</li>
+<li>改 seed 或只保留最好 seed；</li>
+<li>更换 metric；</li>
+<li>扩大模型；</li>
+<li>改数据或样本；</li>
+<li>提前查看 final evidence；</li>
+<li>删除失败行；</li>
+<li>把 exploratory run 重新标记为 preregistered run。</li>
+</ul>
+<hr>
+<h3>Gate 6：Level 3 科学证据审核</h3>
+<h4>必须独立重建</h4>
+<ul>
+<li><code>planned_runs</code> 与 <code>runs</code> 的全集一致性；</li>
+<li>每种方法完整的预算和信息条件签名；</li>
+<li>每个 <code>(pair_id, method)</code> 的真实独立观测数；</li>
+<li>纳入和排除是否符合事前规则；</li>
+<li>聚合是否从声明纳入的行精确重算；</li>
+<li>Claim evidence IDs 是否全部指向合法、已纳入的运行；</li>
+<li>效应量、不确定性、实际意义和多重比较；</li>
+<li>结论是否仅覆盖被实验支持的数据、任务和条件。</li>
+</ul>
+<h4>人工决策</h4>
+<p>若证据不足，只能选择：</p>
+<ul>
+<li>补跑预先允许的最小实验；</li>
+<li>重新审批一个明确的新实验；</li>
+<li>降低 Claim 强度；</li>
+<li>报告无结论或负结果；</li>
+<li>终止该研究方向。</li>
+</ul>
+<p>不能通过删除不利运行或改变统计单位来“修复”结果。</p>
+<hr>
+<h3>Gate 7：Level 4 治理与 Claim Gate</h3>
+<h4>治理审核</h4>
+<ul>
+<li>每个自适应行动是否有对应批准；</li>
+<li>批准是否在行动之前生效；</li>
+<li>scope 和 limits 是否覆盖实际行为；</li>
+<li>运行数、时间、GPU、API 和存储是否在预算内；</li>
+<li>失败、取消和负结果是否完整保留；</li>
+<li>report 是否能从完整 ledger 重建；</li>
+<li>protected evidence 是否流入后续 adaptive action；</li>
+<li>多 Agent 的子任务是否遵循同一协议。</li>
+</ul>
+<h4>最终 Claim Gate</h4>
+<p>人类逐条批准：</p>
+<ul>
+<li>Claim 的对象和范围；</li>
+<li>支持它的 run IDs；</li>
+<li>描述性、预测性、稳定性、泛化性或因果性强度；</li>
+<li>统计意义和实际意义；</li>
+<li>已知限制、负结果和异常；</li>
+<li>是否需要额外复现或外部验证；</li>
+<li>代码、数据和日志是否达到发布标准。</li>
+</ul>
+<p>只有通过 Claim Gate 的结论才能进入摘要、论文主表、新闻稿或公开宣传。</p>
+<hr>
+<h2>7. Agent 写代码时的最佳任务格式</h2>
+<p>不要给 Agent 一个无限期大任务。一个高质量实现任务应包含：</p>
+<pre><code class="language-text">任务目标：
+只实现 &lt;一个模块/行为&gt;。
+
+冻结依据：
+- 规格条款：
+- 论文公式或算法位置：
+- 数据/张量合同：
+
+允许修改：
+- path/a.py
+- tests/test_a.py
+
+禁止修改：
+- 数据切分
+- 评价指标
+- 其他模块接口
+- 冻结协议和现有测试含义
+
+验收标准：
+- focused test 命令
+- regression 命令
+- 性质/梯度/状态要求
+
+资源边界：
+- 不联网
+- 不运行完整训练
+- 最大运行时间
+
+交付要求：
+1. 先说明理解和风险；
+2. 先运行测试并记录 RED；
+3. 做最小实现；
+4. 报告 GREEN 和回归结果；
+5. 列出 diff、假设、未测试路径和可能需要人工决定的问题。
+</code></pre>
+<p>推荐把单个任务控制在一个可独立验证的行为或 30–90 分钟的 Agent 工作量。任务过大时，测试失败无法准确定位，协议漂移也更难被发现。</p>
+<hr>
+<h2>8. Agent 写完代码后的审核流程</h2>
+<h3>8.1 不接受“已完成”的自然语言声明</h3>
+<p>Agent 的完成声明必须附带：</p>
+<ul>
+<li>实际修改文件；</li>
+<li><code>git diff</code> 摘要；</li>
+<li>测试命令和新鲜输出；</li>
+<li>失败测试到修复的因果关系；</li>
+<li>规格条款和实现位置；</li>
+<li>未测试路径；</li>
+<li>环境、依赖和资源变化；</li>
+<li>是否触及任何需审批边界。</li>
+</ul>
+<h3>8.2 九步审核法</h3>
+<ol>
+<li><strong>范围审核</strong>：是否只修改了批准文件和行为；</li>
+<li><strong>规格审核</strong>：实现是否对应冻结条款；</li>
+<li><strong>局部语义审核</strong>：公式、shape、axis、mask、loss 和梯度；</li>
+<li><strong>流水线审核</strong>：身份、split、对齐、状态和评估顺序；</li>
+<li><strong>测试审核</strong>：测试是否会在错误实现上失败，而不是只覆盖当前实现；</li>
+<li><strong>独立重算</strong>：指标、aggregate 和报告是否可从更底层记录重建；</li>
+<li><strong>失败注入</strong>：解析、缓存、resume、空样本和基础设施失败是否正确传播；</li>
+<li><strong>回归审核</strong>：focused、combined、重复运行和 <code>git diff --check</code>；</li>
+<li><strong>权限审核</strong>：是否发生协议、资源或受保护证据越界。</li>
+</ol>
+<h3>8.3 第二 Agent 可以做什么</h3>
+<p>可以让第二 Agent：</p>
+<ul>
+<li>独立阅读规格和 diff；</li>
+<li>寻找能使实现失败的最小反例；</li>
+<li>检查测试盲区；</li>
+<li>重算数据 lineage 或指标；</li>
+<li>检查 run ledger 和报告一致性；</li>
+<li>输出“发现 + 证据 + 严重度 + 建议”，而不是直接改代码。</li>
+</ul>
+<p>第二 Agent 不能替代人类最终审核，因为两个 Agent 可能共享相同误解、训练分布和规格盲区。</p>
+<h3>8.4 修复审核发现</h3>
+<p>每个真实缺陷都应按以下顺序修复：</p>
+<ol>
+<li>添加一个能复现缺陷的 focused test；</li>
+<li>运行并保存 RED；</li>
+<li>做最小修复；</li>
+<li>运行 focused GREEN；</li>
+<li>运行全部相关回归；</li>
+<li>更新风险、决策和已知限制；</li>
+<li>若改变科学协议，返回 Gate 1，而不是直接合入。</li>
+</ol>
+<hr>
+<h2>9. 多 Agent 如何提高效率而不破坏一致性</h2>
+<h3>9.1 适合并行</h3>
+<ul>
+<li>论文不同章节的证据提取；</li>
+<li>仓库入口、数据流、训练和评估的独立探索；</li>
+<li>单元测试、性质测试和日志分析；</li>
+<li>不同实验运行的监控；</li>
+<li>独立代码审查和结果重算；</li>
+<li>文档、图表和复现说明草案。</li>
+</ul>
+<h3>9.2 不适合无约束并行</h3>
+<ul>
+<li>多个 Agent 同时修改同一核心文件；</li>
+<li>各自解释 loss、metric 或 split；</li>
+<li>各自扩大搜索空间；</li>
+<li>各自决定异常运行是否删除；</li>
+<li>子 Agent 直接把结果写入最终 Claim；</li>
+<li>没有共享协议版本和 commit 的实验。</li>
+</ul>
+<h3>9.3 推荐组织方式</h3>
+<ul>
+<li>一个 root Agent 负责工作分解和证据汇总；</li>
+<li>每个写任务只有一个明确 owner；</li>
+<li>子 Agent 默认只读，只有指定路径可写；</li>
+<li>所有子任务引用同一 protocol version 和 commit；</li>
+<li>并行任务必须有独立输出文件，避免写冲突；</li>
+<li>root Agent 只汇总证据，不替人批准科学改变；</li>
+<li>人类在 Gate 处统一处理冲突和批准。</li>
+</ul>
+<hr>
+<h2>10. 推荐 Prompt</h2>
+<h3>10.1 项目启动 Prompt</h3>
+<pre><code class="language-text">你将协助我把一个科研 Idea 构建成可复现、可审计的实验代码。你的职责是高质量执行和提供证据，不是自行改变科学问题。
+
+第一阶段不要写生产代码。请先：
+1. 整理研究问题、假设、目标变量和成功/失败标准；
+2. 列出数据、split、模型、loss、baseline、指标、预算、统计和 Claim 中的所有歧义；
+3. 把问题映射为 Level 1 算法合同、Level 2 流水线合同、Level 3 科学证据合同和 Level 4 治理合同；
+4. 给出项目架构、验收测试、风险清单和需要人工决定的选项；
+5. 明确允许自动执行、需要事前批准和禁止的行动；
+6. 等我批准冻结协议后再实现。
+
+任何需要改变数据、样本构造、split、模型、loss、metric、baseline 条件、搜索预算、checkpoint/test 规则、统计方法或主要 Claim 的决定，都必须先停止并请求批准。
+</code></pre>
+<h3>10.2 单任务实现 Prompt</h3>
+<pre><code class="language-text">只实现下面这个已批准任务，不扩大范围：
+
+目标：
+冻结规格：
+允许修改：
+禁止修改：
+focused tests：
+regression tests：
+资源限制：
+
+按 RED → 最小实现 → GREEN → 回归 → 自审执行。完成时提交：
+- 修改文件和关键 diff；
+- 测试命令与结果；
+- 规格到代码映射；
+- 最小反例或性质证明；
+- 未测试假设和风险；
+- 是否触及任何审批边界。
+</code></pre>
+<h3>10.3 代码审核 Prompt</h3>
+<pre><code class="language-text">作为独立审核者，只审核，不修改代码。
+
+输入包括冻结规格、代码 diff、测试和运行产物。请按四层合同检查：
+1. Level 1：公式、shape、axis、mask、loss、梯度；
+2. Level 2：数据身份、split、对齐、状态、checkpoint、评估边界；
+3. Level 3：baseline 信息与预算、实验单位、排除、统计和 Claim；
+4. Level 4：权限、批准、资源、失败记录和 protected-evidence flow。
+
+每个发现必须包含：
+- 严重度；
+- 精确位置或 evidence ID；
+- 违反的规格条款；
+- 为什么代码仍可能运行；
+- 最小反例或验证命令；
+- 最小安全修复；
+- 若证据不足，明确写“证据不足”，不要猜测。
+</code></pre>
+<h3>10.4 实验运行 Prompt</h3>
+<pre><code class="language-text">只运行已批准的 planned_runs，不自行优化研究方案。
+
+每次运行必须记录 run_id、commit、config hash、data hash、seed、开始/结束时间、资源、状态、checkpoint、指标文件和 terminal event。
+
+基础设施失败可以在批准的重试规则内恢复；任何需要改变数据、模型、loss、metric、搜索范围、预算、停止条件或 test 使用的情况，立即停止并提交：
+1. 当前证据；
+2. 失败原因；
+3. 最小变更提案；
+4. 科学含义和预算影响；
+5. 等待人工批准。
+
+不得删除失败运行，不得只汇报最佳结果，不得让 protected evaluation 影响后续开发。
+</code></pre>
+<h3>10.5 Claim 审核 Prompt</h3>
+<pre><code class="language-text">根据 planned_runs、完整 run ledger、aggregate、统计规则和 claims.json，审核每条 Claim。
+
+不要以结果看起来合理作为证据。请检查：
+- evidence run IDs 是否完整合法；
+- 预算和信息条件是否公平；
+- 独立单位、配对和样本量是否正确；
+- 排除是否预先批准；
+- 聚合能否独立重算；
+- 效应量、不确定性和实际意义是否支持措辞；
+- Claim 是否超出数据、任务、指标和实验条件；
+- 是否遗漏失败、负结果或限制。
+
+输出：允许、降级、需补实验或阻止发布，并给出可追溯证据。最终决定仍由人类研究负责人作出。
+</code></pre>
+<hr>
+<h2>11. 如何衡量人机协作是否真的高效</h2>
+<p>不要只统计“Agent 写了多少行代码”。建议记录：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>从规格批准到第一个可信 smoke run 的时间</td>
+<td>实现速度</td>
+</tr>
+<tr>
+<td>首次 Gate 通过率</td>
+<td>输入规格和任务拆分质量</td>
+</tr>
+<tr>
+<td>每次变更发现的回归数</td>
+<td>测试有效性</td>
+</tr>
+<tr>
+<td>生产代码前发现的科学协议问题数</td>
+<td>早期审核价值</td>
+</tr>
+<tr>
+<td>未经批准的协议改变数</td>
+<td>治理可靠性</td>
+</tr>
+<tr>
+<td>run ledger 完整率</td>
+<td>实验可审计性</td>
+</tr>
+<tr>
+<td>中断恢复等价率</td>
+<td>运维质量</td>
+</tr>
+<tr>
+<td>可独立重算的指标比例</td>
+<td>证据质量</td>
+</tr>
+<tr>
+<td>Claim evidence 覆盖率</td>
+<td>结论可追溯性</td>
+</tr>
+<tr>
+<td>失败和负结果保留率</td>
+<td>报告完整性</td>
+</tr>
+<tr>
+<td>人类花在机械工作与科学决策上的时间比例</td>
+<td>人机分工是否合理</td>
+</tr>
+</tbody></table>
+<p>理想状态不是人类完全退出，而是：</p>
+<ul>
+<li>Agent 承担重复、可检查、高带宽的工作；</li>
+<li>自动测试承担确定性不变量检查；</li>
+<li>人类时间集中在问题定义、歧义、协议、证据和 Claim；</li>
+<li>高风险错误尽量在昂贵训练前被小实验发现；</li>
+<li>每个最终结论都能被第三方重建。</li>
+</ul>
+<hr>
+<h2>12. 常见失败模式</h2>
+<h3>12.1 “持续优化直到指标提高”</h3>
+<p>问题：允许 Agent 无限扩大搜索、窥视测试集或事后改变假设。</p>
+<p>替代：冻结运行矩阵、预算、停止条件和审批边界。</p>
+<h3>12.2 一次让 Agent 构建整个项目</h3>
+<p>问题：无法知道哪个决策来自规格，哪个来自 Agent 补全。</p>
+<p>替代：按合同和 Gate 拆成小任务，每次只合入一个可验证行为。</p>
+<h3>12.3 只审查最终 diff</h3>
+<p>问题：看不到实验过程中的越权、失败运行和 test peeking。</p>
+<p>替代：同时审核代码、事件、审批、run ledger 和报告重建。</p>
+<h3>12.4 看到测试通过就批准</h3>
+<p>问题：测试可能编码了错误规则。</p>
+<p>替代：先审规格，再审测试能否杀死错误实现，最后审生产代码。</p>
+<h3>12.5 让同一个 Agent 自己实现、自己证明、自己批准</h3>
+<p>问题：共享盲区会被重复确认。</p>
+<p>替代：机械验证、独立 Agent review 和人工 Gate 三者分离。</p>
+<h3>12.6 只保留最好的实验</h3>
+<p>问题：形成 seed、checkpoint 和选择性报告偏差。</p>
+<p>替代：完整 <code>planned_runs</code> 和 immutable run ledger，排除必须有事前规则。</p>
+<h3>12.7 把无显著差异解释为方法有效</h3>
+<p>问题：描述性数值、统计证据和实际意义被混淆。</p>
+<p>替代：预先冻结分析单位、配对、效应量、区间和实际意义阈值。</p>
+<h3>12.8 把“没有记录批准”直接判为越权</h3>
+<p>问题：缺失日志不一定能正面证明没有批准。</p>
+<p>替代：冻结完整审批集合，并用状态、时间、scope 或 limits 与行动的明确冲突证明。</p>
+<hr>
+<h2>13. 最小可行版与严格版</h2>
+<h3>13.1 小型课程项目或早期探索</h3>
+<p>最低要求：</p>
+<ul>
+<li>一页 <code>RESEARCH_SPEC.md</code>；</li>
+<li>冻结数据、split、metric 和预算；</li>
+<li>Level 1/2 自动测试；</li>
+<li>每次运行的 config、seed、commit 和结果；</li>
+<li>不使用 test 做选择；</li>
+<li>人工审核最终表格和 Claim。</li>
+</ul>
+<h3>13.2 论文、毕业项目或公开仓库</h3>
+<p>增加：</p>
+<ul>
+<li>机器可读冻结协议；</li>
+<li>planned/observed/aggregate/claim 四层证据；</li>
+<li>完整审批与决策日志；</li>
+<li>多 seed、配对和统计分析；</li>
+<li>Level 1–4 审计报告；</li>
+<li>独立 Agent 或第二人审核；</li>
+<li>发布前复现和报告重建。</li>
+</ul>
+<h3>13.3 高风险、昂贵或受监管研究</h3>
+<p>进一步增加：</p>
+<ul>
+<li>数据治理、伦理和隐私审批；</li>
+<li>不可变原始数据与产物存储；</li>
+<li>环境镜像和供应链审计；</li>
+<li>独立统计审核；</li>
+<li>外部复现；</li>
+<li>权限最小化和全量行动日志；</li>
+<li>预注册或正式变更控制。</li>
+</ul>
+<hr>
+<h2>14. 一页式执行清单</h2>
+<h3>Agent 开始写代码前</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 研究问题和主要假设已冻结；</li>
+<li><input disabled="" type="checkbox"> 数据、独立单位和 split 已冻结；</li>
+<li><input disabled="" type="checkbox"> 模型、loss、baseline、metric 和候选集合已冻结；</li>
+<li><input disabled="" type="checkbox"> 搜索空间、预算、停止与 checkpoint 规则已冻结；</li>
+<li><input disabled="" type="checkbox"> test/protected evidence 边界已冻结；</li>
+<li><input disabled="" type="checkbox"> 统计方法和允许 Claim 已冻结；</li>
+<li><input disabled="" type="checkbox"> Agent 自动权限、审批项和禁止项已明确；</li>
+<li><input disabled="" type="checkbox"> 架构、数据合同和 tensor contract 已审核；</li>
+<li><input disabled="" type="checkbox"> 验收测试已先运行并产生有效 RED。</li>
+</ul>
+<h3>Agent 每次代码交付后</h3>
+<ul>
+<li><input disabled="" type="checkbox"> diff 只包含批准范围；</li>
+<li><input disabled="" type="checkbox"> focused tests 新鲜通过；</li>
+<li><input disabled="" type="checkbox"> 相关回归全部通过；</li>
+<li><input disabled="" type="checkbox"> 公式、shape、mask、loss 和梯度已核对；</li>
+<li><input disabled="" type="checkbox"> 数据身份、split、状态和评估顺序已核对；</li>
+<li><input disabled="" type="checkbox"> 新测试能在错误实现上失败；</li>
+<li><input disabled="" type="checkbox"> 没有静默依赖、环境或协议变化；</li>
+<li><input disabled="" type="checkbox"> 未测试假设和风险已记录；</li>
+<li><input disabled="" type="checkbox"> 审核发现通过新 RED → 修复 → GREEN 闭环。</li>
+</ul>
+<h3>正式实验开始前</h3>
+<ul>
+<li><input disabled="" type="checkbox"> <code>planned_runs</code> 完整；</li>
+<li><input disabled="" type="checkbox"> 配置、数据和代码均有 hash/commit；</li>
+<li><input disabled="" type="checkbox"> 每个方法预算和信息条件可比较；</li>
+<li><input disabled="" type="checkbox"> run roles 与 protected evidence 规则明确；</li>
+<li><input disabled="" type="checkbox"> 资源 limits 和重试规则获批；</li>
+<li><input disabled="" type="checkbox"> 失败和负结果保留规则明确。</li>
+</ul>
+<h3>结果进入论文前</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 运行总体与账本一致；</li>
+<li><input disabled="" type="checkbox"> 聚合可从底层结果独立重算；</li>
+<li><input disabled="" type="checkbox"> 排除符合事前规则；</li>
+<li><input disabled="" type="checkbox"> 统计单位、配对和样本量正确；</li>
+<li><input disabled="" type="checkbox"> Claim 引用精确 evidence IDs；</li>
+<li><input disabled="" type="checkbox"> 统计意义与实际意义均被校准；</li>
+<li><input disabled="" type="checkbox"> 失败、负结果和限制被披露；</li>
+<li><input disabled="" type="checkbox"> 审批、资源和 protected-evidence flow 已审计；</li>
+<li><input disabled="" type="checkbox"> 人类研究负责人完成最终 Claim Gate。</li>
+</ul>
+<hr>
+<h2>15. 最终原则</h2>
+<p>高效的人机科研协作，不是让人类逐行监视 Agent，也不是让 Agent 持续行动直到得到漂亮结果。</p>
+<p>真正可靠的分工是：</p>
+<blockquote>
+<p><strong>人类冻结问题、合同、权限和 Claim；Agent 高速实现、测试、运行和整理；自动检查持续验证不变量；人类只在有完整证据时批准科学含义发生变化的决定。</strong></p>
+</blockquote>
+<p>当代码、数据、状态、实验、审批和 Claim 都能沿一条完整证据链被重建时，Agent 的执行效率才真正转化为科研效率，而不是更快地产生不可审计的结果。</p>
+<hr>
+<h2>16. 与本仓库四级训练框架的关系</h2>
+<p>本文把仓库原本用于“训练人审核研究代码”的四级框架，反向应用到真实的人机协作开发过程：</p>
+<ul>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/README_zh-CN.md">训练仓库总览</a>：Coding Agent 能力边界、程序员新角色和四级训练目标；</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/SKILL.md">Research Code Audit Training Skill</a>：测试驱动实施、公开/隐藏验证、证据化审核和修正流程；</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/four-level-framework.md">四级合同边界</a>：算法、流水线、科学有效性和治理的归类规则；</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/quality-gates.md">质量门</a>：RED/GREEN、最小反例、误报控制和最终拒绝条件；</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/artifact-contracts.md">产物合同</a>：manifest、run ledger、claim 和 governance artifacts；</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/level3-level4-implementation-lessons.md">Level 3/4 实施经验</a>：计划、观测、聚合、Claim、审批和 evidence flow 的结构化要求。</li>
+</ul>
+<p>训练框架询问“哪份实现或实验材料可信”；本文则把同样的问题提前到每个真实开发 Gate，使错误在进入昂贵实验或论文主张之前被发现。</p>
+</section>
+<hr class="essay-language-divider">
+<section id="english" class="essay-language-section" lang="en">
+<h1>Best Practices for Building Research Experiment Code with Coding Agents</h1>
+<blockquote>
+<p>A human–agent research-engineering workflow from research idea and protocol to test-driven implementation, scientific evidence, and claim approval</p>
+</blockquote>
+<p>Version: 1.0</p>
+<p>Audience: research students, research programmers, research engineers, PIs, experiment owners, and maintainers supervising coding agents</p>
+<p>Scope: machine learning, recommender systems, NLP, computer vision, graph learning, reinforcement learning, data science, and other projects combining a research idea, experimental code, and scientific claims</p>
+<p><a href="#zh-cn">中文版</a></p>
+<hr>
+<h2>0. What this workflow solves</h2>
+<p>Coding agents can greatly accelerate repository reading, framework construction, module implementation, testing, debugging, experiment operations, and result preparation. Research projects nevertheless fail for reasons that ordinary compilation and smoke tests do not expose:</p>
+<ul>
+<li>the implemented problem drifts from the intended research question;</li>
+<li>a formula, loss, mask, index, reduction, or gradient path is subtly wrong;</li>
+<li>data splitting, sample identity, caching, or checkpoint handling violates an experimental boundary;</li>
+<li>baselines receive unequal information, tuning budgets, or stopping conditions;</li>
+<li>the test set or other protected evidence influences model selection;</li>
+<li>failed runs, negative results, or anomalous samples disappear from the record;</li>
+<li>the paper&#39;s claims exceed what the experiment actually supports;</li>
+<li>an agent changes data, models, metrics, budgets, or hypotheses without approval.</li>
+</ul>
+<p>The efficient workflow is therefore not:</p>
+<blockquote>
+<p>A human provides a vague idea → an agent implements and optimizes freely → the human checks only the final metric.</p>
+</blockquote>
+<p>It is:</p>
+<blockquote>
+<p>The human freezes the research question, scientific protocol, authority boundaries, and acceptance criteria; the agent performs high-bandwidth implementation, testing, and operations; mechanical checks continuously enforce invariants; and the human approves every change to scientific meaning and owns the final claim.</p>
+</blockquote>
+<p>This document turns that division of responsibility into an operational workflow.</p>
+<hr>
+<h2>1. Core principles</h2>
+<h3>1.1 The agent provides execution bandwidth; the human retains scientific control</h3>
+<p>An agent is well suited to:</p>
+<ul>
+<li>read papers, repositories, configurations, logs, and data documentation;</li>
+<li>translate a frozen specification into project structure, interfaces, and implementation;</li>
+<li>write unit, integration, property, gradient, and regression tests;</li>
+<li>run smoke tests, baselines, ablations, and approved searches;</li>
+<li>monitor jobs and recover interrupted runs;</li>
+<li>prepare tables, plots, and report drafts;</li>
+<li>repair ordinary engineering failures when the evidence is clear.</li>
+</ul>
+<p>The human must control:</p>
+<ul>
+<li>the research question, target construct, and success criteria;</li>
+<li>data versions, independent units, splits, and leakage boundaries;</li>
+<li>the scientific definition of models, losses, metrics, baselines, and candidate sets;</li>
+<li>tuning budgets, stopping rules, checkpoint selection, and test-set use;</li>
+<li>which actions are automatic and which require prior approval;</li>
+<li>statistical procedures, practical-significance thresholds, and permitted claims;</li>
+<li>paper conclusions, causal interpretation, ethics, and release.</li>
+</ul>
+<h3>1.2 Freeze the protocol before asking the agent to write code</h3>
+<p>If the instruction is only “implement this idea and improve the metric,” the agent must silently fill in major scientific decisions. It may produce excellent code for a moving or incorrect problem.</p>
+<p>Before production code is written, freeze at least:</p>
+<ol>
+<li>the research question and primary hypotheses;</li>
+<li>the data and independent unit;</li>
+<li>training, validation, test, and protected-evidence boundaries;</li>
+<li>the primary model and baseline conditions;</li>
+<li>losses, metrics, and candidate sets;</li>
+<li>tuning budgets and stopping rules;</li>
+<li>repetition and statistical-analysis plans;</li>
+<li>protected-evidence rules;</li>
+<li>agent permissions, resource limits, and approval boundaries;</li>
+<li>the strongest claim the planned evidence could support.</li>
+</ol>
+<h3>1.3 Passing tests is not the same as being scientifically correct</h3>
+<p>Tests prove only the rules encoded in those tests. A mistaken specification can produce a thoroughly tested but scientifically wrong system.</p>
+<p>Every project therefore needs:</p>
+<ul>
+<li><strong>implementation tests</strong> for interfaces, shapes, values, gradients, and state;</li>
+<li><strong>protocol tests</strong> for data boundaries, evaluation order, budgets, and run completeness;</li>
+<li><strong>scientific review</strong> for fairness, experimental units, statistics, and claim scope;</li>
+<li><strong>governance review</strong> for approvals, permissions, failed-run retention, and protected evidence.</li>
+</ul>
+<h3>1.4 Every consequential statement must be traceable</h3>
+<p>Statements such as “the implementation is correct,” “the experiment is complete,” “the method is better,” or “this belongs in the paper” should trace to:</p>
+<ul>
+<li>a specification clause or paper location;</li>
+<li>code, configuration, and commit;</li>
+<li>data, environment, and dependency versions;</li>
+<li>test names and fresh test results;</li>
+<li><code>run_id</code>, seed, and checkpoint;</li>
+<li>raw logs and experiment ledgers;</li>
+<li>aggregation code and statistical rules;</li>
+<li>exact evidence IDs cited by the claim;</li>
+<li>human approvals and decision records.</li>
+</ul>
+<p>An untraceable result is a lead, not trusted evidence.</p>
+<hr>
+<h2>2. End-to-end workflow</h2>
+<figure class="workflow-figure"><a href="essays/assets/human-agent-research-workflow-en.svg" target="_blank" rel="noopener"><img src="essays/assets/human-agent-research-workflow-en.svg" alt="Human–agent research engineering workflow" loading="lazy"></a><figcaption>Human–agent research engineering workflow（点击查看完整尺寸 / Open full-size diagram）</figcaption></figure>
+
+<p>The gates are the most important components of the diagram. The agent may operate efficiently between gates, but it may not remove a gate or rewrite its scientific rules merely because results are disappointing.</p>
+<hr>
+<h2>3. Four contracts for auditing agent-written research code</h2>
+<p>Maintain four contracts throughout the project. Classify a failure by the first contract it violates, not by the severity of its downstream consequences.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Contract</th>
+<th>Central question</th>
+<th>Preferred evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Level 1</td>
+<td>Formulas, operators, indices, masks, losses, gradients</td>
+<td>Does the local algorithm faithfully implement the mathematical definition?</td>
+<td>Minimal tensor, property test, finite difference, gradient probe</td>
+</tr>
+<tr>
+<td>Level 2</td>
+<td>Identity, splits, caches, state, checkpoints, evaluation</td>
+<td>Does the automated pipeline preserve identity, state, and protected boundaries?</td>
+<td>Data lineage, joint fingerprints, event order, independent recomputation</td>
+</tr>
+<tr>
+<td>Level 3</td>
+<td>Baselines, information, budgets, experimental units, statistics, claims</td>
+<td>Is the comparison fair, and does complete evidence support the claim?</td>
+<td>Planned matrix, run ledger, configuration signatures, frozen analysis rule</td>
+</tr>
+<tr>
+<td>Level 4</td>
+<td>Permissions, approvals, resources, stopping, records, protected evidence</td>
+<td>Were agent actions authorized and fully auditable?</td>
+<td>Frozen protocol, approval chain, event log, ledger and report reconstruction</td>
+</tr>
+</tbody></table>
+<h3>3.1 Level 1: algorithm semantics</h3>
+<p>Human review should examine:</p>
+<ul>
+<li>how every symbol maps to a tensor;</li>
+<li>shapes, axes, broadcasting, and reductions;</li>
+<li>masks for padding, invalid positions, and future information;</li>
+<li>whether a loss expects logits, probabilities, or another representation;</li>
+<li>label, item-ID, special-token, and offset spaces;</li>
+<li><code>.detach()</code>, frozen parameters, in-place operations, and optimizer omissions;</li>
+<li>train/eval behavior that changes mathematical meaning.</li>
+</ul>
+<p>The agent should deliver:</p>
+<ul>
+<li>a formula-to-code map;</li>
+<li>shape, axis, mask, target, loss, and gradient contracts;</li>
+<li>tiny hand-computable examples;</li>
+<li>property and gradient tests;</li>
+<li>evidence for every non-obvious implementation choice.</li>
+</ul>
+<h3>3.2 Level 2: pipeline integrity</h3>
+<p>Human review should examine:</p>
+<ul>
+<li>whether splitting occurs on the raw independent unit before augmentation or windowing;</li>
+<li>whether modalities, features, labels, masks, and IDs are permuted jointly;</li>
+<li>whether caches bind to the correct data version, configuration, and split;</li>
+<li>whether resume restores optimizer, scheduler, epoch, and random state;</li>
+<li>whether checkpoint selection uses only approved validation evidence;</li>
+<li>whether misses, failures, and empty cases remain in metric denominators;</li>
+<li>whether protected evaluation occurs only after selection and does not feed back into development.</li>
+</ul>
+<p>The agent should deliver:</p>
+<ul>
+<li>data and sample identity manifests;</li>
+<li>lineage from raw entities to derived samples;</li>
+<li>joint fingerprints before and after batching or permutation;</li>
+<li>per-epoch training and validation state;</li>
+<li>checkpoint-selection evidence;</li>
+<li>one record per evaluation example, including zero-valued and failed cases;</li>
+<li>an ordered event log.</li>
+</ul>
+<h3>3.3 Level 3: scientific validity</h3>
+<p>Human review should examine:</p>
+<ul>
+<li>whether baselines use equal data, features, candidate populations, and external information;</li>
+<li>whether tuning trials, compute, early stopping, and engineering attention are comparable;</li>
+<li>whether failed and negative runs remain in the planned population and observed ledger;</li>
+<li>whether exclusions were frozen in advance;</li>
+<li>whether seeds, epochs, checkpoints, windows, or crops are incorrectly treated as independent scientific samples;</li>
+<li>whether pairing and statistical analysis are correct;</li>
+<li>whether effect sizes, uncertainty, practical thresholds, and multiple comparisons are addressed;</li>
+<li>whether claims exceed the datasets, tasks, metrics, and conditions tested.</li>
+</ul>
+<p>The agent should deliver four separate evidence layers:</p>
+<ol>
+<li><code>planned_runs</code>: the complete population frozen before execution;</li>
+<li><code>runs</code>: every observed run, status, result, inclusion decision, and exclusion reason;</li>
+<li><code>aggregate</code>: exact recomputation from the declared included rows;</li>
+<li><code>claim</code>: scope, threshold, statistical result, and exact evidence run IDs.</li>
+</ol>
+<h3>3.4 Level 4: experiment governance</h3>
+<p>Human review should examine:</p>
+<ul>
+<li>whether approval existed before each adaptive change;</li>
+<li>whether approval status, time, scope, and limits covered the action;</li>
+<li>whether runs, time, GPU, API, or storage exceeded approved budgets;</li>
+<li>whether failed, cancelled, or negative results were deleted or hidden;</li>
+<li>whether protected evidence flowed into later adaptive action;</li>
+<li>whether all subagents used the same frozen protocol;</li>
+<li>whether the agent stopped and requested approval at material ambiguity.</li>
+</ul>
+<p>The agent should deliver:</p>
+<ul>
+<li>a machine-readable frozen protocol with stable clause IDs;</li>
+<li>a time-ordered agent event log;</li>
+<li>approval status, scope, limits, and decision time;</li>
+<li>a complete run and resource ledger;</li>
+<li>a report manifest rebuilt from the ledger;</li>
+<li>explicit references tracing protected evidence into later actions.</li>
+</ul>
+<hr>
+<h2>4. Division of responsibility</h2>
+<table>
+<thead>
+<tr>
+<th>Activity</th>
+<th>Agent may execute</th>
+<th>Requires prior human approval</th>
+<th>Human final decision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Requirements</td>
+<td>Identify ambiguity and draft a specification</td>
+<td>Research question and success criteria</td>
+<td>Whether the idea is worth studying</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>Propose modules, interfaces, directories, and tests</td>
+<td>Data contracts and scientific boundaries</td>
+<td>Whether the system represents the right problem</td>
+</tr>
+<tr>
+<td>Data code</td>
+<td>Implement download, parsing, cleaning, and caching</td>
+<td>Data version, split unit, exclusion rules</td>
+<td>Legality, ethics, and leakage boundary</td>
+</tr>
+<tr>
+<td>Model code</td>
+<td>Implement modules, forward pass, loss, and tests</td>
+<td>Primary structure, objective, and assumptions</td>
+<td>Whether mathematics matches research intent</td>
+</tr>
+<tr>
+<td>Debugging</td>
+<td>Repair failures with clear implementation evidence</td>
+<td>Repairs that change scientific meaning</td>
+<td>Whether protocol deviation is acceptable</td>
+</tr>
+<tr>
+<td>Experiments</td>
+<td>Run approved matrices, resume, and log</td>
+<td>Search space, budget, and stopping</td>
+<td>Whether to expand the experiment</td>
+</tr>
+<tr>
+<td>Checkpoints</td>
+<td>Save, restore, and batch-evaluate</td>
+<td>Selection rule and evidence role</td>
+<td>Which model may enter final evaluation</td>
+</tr>
+<tr>
+<td>Analysis</td>
+<td>Recompute, plot, and draft reports</td>
+<td>Aggregation and statistical rule</td>
+<td>Interpretation</td>
+</tr>
+<tr>
+<td>Writing</td>
+<td>Draft prose and tables</td>
+<td>Claim scope</td>
+<td>Innovation, causality, and final conclusion</td>
+</tr>
+<tr>
+<td>Agent coordination</td>
+<td>Decompose independent read and test tasks</td>
+<td>Write access, paths, and shared protocol</td>
+<td>Whether autonomous scope expansion is allowed</td>
+</tr>
+</tbody></table>
+<h3>4.1 Actions normally safe to automate</h3>
+<p>Within a frozen specification, an agent can usually:</p>
+<ul>
+<li>add or modify implementation code;</li>
+<li>add tests, types, logs, and diagnostics;</li>
+<li>fix ordinary bugs proven by failing tests;</li>
+<li>perform behavior-preserving refactoring;</li>
+<li>run approved smoke tests and bounded debugging;</li>
+<li>execute, resume, and summarize runs in the approved matrix;</li>
+<li>prepare figures and text that do not assert final scientific judgment.</li>
+</ul>
+<h3>4.2 Changes requiring prior approval</h3>
+<p>Approval must precede changes to:</p>
+<ul>
+<li>data sources, cleaning, label definitions, or splits;</li>
+<li>sample construction, negative sampling, candidate sets, or filtering;</li>
+<li>model architecture, primary loss, optimization objective, or training task;</li>
+<li>baseline information, pretrained resources, or tuning budgets;</li>
+<li>metrics, denominators, aggregation units, or statistical methods;</li>
+<li>checkpoint, early-stopping, or test-set rules;</li>
+<li>search ranges, seed counts, GPU/API/time budgets;</li>
+<li>removal of anomalous samples, failed runs, or negative results;</li>
+<li>primary hypotheses or research questions in response to poor results.</li>
+</ul>
+<h3>4.3 Default prohibitions</h3>
+<ul>
+<li>using final test results for model or hyperparameter selection;</li>
+<li>feeding protected metrics into later adaptive development;</li>
+<li>silently changing the frozen protocol;</li>
+<li>overwriting raw logs, configurations, checkpoints, or results;</li>
+<li>retaining only the best seed, epoch, checkpoint, or run;</li>
+<li>deleting failed, cancelled, or negative runs;</li>
+<li>accessing unapproved files, data, networks, or services;</li>
+<li>interpreting absent approval as approval;</li>
+<li>turning generated tables directly into causal or universal claims.</li>
+</ul>
+<hr>
+<h2>5. Recommended project artifacts</h2>
+<p>A research project designed for human–agent collaboration should contain an auditable structure similar to:</p>
+<pre><code class="language-text">research-project/
+├── README.md
+├── GOVERNANCE/
+│   ├── RESEARCH_SPEC.md
+│   ├── FROZEN_PROTOCOL.yaml
+│   ├── APPROVALS.jsonl
+│   ├── DECISION_LOG.md
+│   └── RISK_REGISTER.md
+├── DESIGN/
+│   ├── ARCHITECTURE.md
+│   ├── PAPER_TO_CODE_MAP.md
+│   ├── DATA_CONTRACT.md
+│   ├── TENSOR_CONTRACT.md
+│   └── ACCEPTANCE_CRITERIA.md
+├── src/
+├── tests/
+│   ├── unit/
+│   ├── properties/
+│   ├── gradients/
+│   ├── integration/
+│   └── protocol/
+├── experiments/
+│   ├── planned_runs.csv
+│   ├── configs/
+│   ├── run_ledger.csv
+│   ├── events.jsonl
+│   └── raw_results/
+├── analysis/
+│   ├── aggregate.py
+│   ├── aggregate.csv
+│   ├── claims.json
+│   └── figures/
+├── reports/
+│   ├── REPORT_MANIFEST.json
+│   └── LIMITATIONS.md
+└── audits/
+    ├── LEVEL1_ALGORITHM.md
+    ├── LEVEL2_PIPELINE.md
+    ├── LEVEL3_SCIENTIFIC_VALIDITY.md
+    ├── LEVEL4_GOVERNANCE.md
+    └── RELEASE_CHECKLIST.md
+</code></pre>
+<p>Projects do not need these exact filenames, but they must make it possible to determine:</p>
+<ul>
+<li>where the research protocol is defined;</li>
+<li>who approved what and when;</li>
+<li>which runs were planned;</li>
+<li>which runs actually occurred;</li>
+<li>which results were included or excluded and why;</li>
+<li>how aggregates were rebuilt from raw runs;</li>
+<li>which evidence supports each claim;</li>
+<li>which changes the agent made;</li>
+<li>which gates were passed before release.</li>
+</ul>
+<hr>
+<h2>6. Detailed gate procedure</h2>
+<h3>Gate 0: freeze the idea and research question</h3>
+<h4>Human input</h4>
+<ul>
+<li>the scientific problem;</li>
+<li>why current approaches are insufficient;</li>
+<li>the main hypothesis in minimally falsifiable form;</li>
+<li>target data, task, and evaluation object;</li>
+<li>meanings of success, failure, and inconclusive evidence.</li>
+</ul>
+<h4>Agent work</h4>
+<ul>
+<li>decompose the idea into explicit research questions;</li>
+<li>identify ambiguity, hidden assumptions, alternative explanations, and identifiability problems;</li>
+<li>separate paper claims, engineering goals, and exploratory questions;</li>
+<li>draft the specification and risk register;</li>
+<li>surface decisions for the human rather than silently resolving them.</li>
+</ul>
+<h4>Required artifacts</h4>
+<ul>
+<li><code>RESEARCH_SPEC.md</code>;</li>
+<li>an initial assumption ledger;</li>
+<li>initial permitted claim scope;</li>
+<li>unresolved questions and stop conditions.</li>
+</ul>
+<h4>Exit criterion</h4>
+<p>The question is falsifiable, success is more precise than “obtain a higher metric,” and key constructs and independent units are defined.</p>
+<hr>
+<h3>Gate 1: freeze the scientific protocol and agent authority</h3>
+<h4>The human freezes</h4>
+<ul>
+<li>data version, inclusion/exclusion rules, and independent unit;</li>
+<li>training, validation, test, and protected boundaries;</li>
+<li>models, losses, baselines, candidate sets, and metrics;</li>
+<li>tuning space, maximum trials, budget unit, and stopping;</li>
+<li>repetitions, seeds, pairing, and statistical analysis;</li>
+<li>exploratory, confirmatory, and final-evidence roles;</li>
+<li>automatic actions and changes requiring reapproval.</li>
+</ul>
+<h4>Agent work</h4>
+<ul>
+<li>translate the natural-language protocol into machine-readable configuration;</li>
+<li>assign stable clause IDs to important rules;</li>
+<li>identify contradictions and missing fields;</li>
+<li>draft the approval matrix and run plan;</li>
+<li>assess resource, dependency, data, and permission feasibility.</li>
+</ul>
+<h4>Exit criterion</h4>
+<p>No material scientific decision is left for the agent to guess during implementation, and every important change has an approval path.</p>
+<hr>
+<h3>Gate 2: review architecture, contracts, and test design</h3>
+<h4>Agent work</h4>
+<ul>
+<li>propose modules, interfaces, and data flow;</li>
+<li>map the idea or paper to code locations;</li>
+<li>define tensor, data, state, and evaluation contracts;</li>
+<li>write acceptance tests, property tests, and minimal counterexamples first;</li>
+<li>run them and retain valid RED evidence caused by missing behavior, not syntax or environment failure.</li>
+</ul>
+<h4>Human review</h4>
+<ul>
+<li>tests encode the frozen protocol rather than an agent-invented substitute;</li>
+<li>every high-risk rule has a cheap and decisive proof;</li>
+<li>local correctness does not depend on full training;</li>
+<li>protected evidence is absent from the development path;</li>
+<li>uncovered assumptions are explicit.</li>
+</ul>
+<h4>Exit criterion</h4>
+<p>Implementation has objective acceptance criteria, and high-risk algorithm and pipeline failures can be falsified with bounded runs.</p>
+<hr>
+<h3>Gate 3: Level 1 algorithm review</h3>
+<h4>Recommended TDD loop</h4>
+<ol>
+<li>select one bounded behavior;</li>
+<li>state inputs, outputs, shapes, mathematical properties, and gradient requirements;</li>
+<li>run the focused tests and confirm RED;</li>
+<li>let the agent make the smallest implementation;</li>
+<li>run focused tests;</li>
+<li>run combined regression tests;</li>
+<li>require agent self-review of the diff, risks, and untested paths;</li>
+<li>manually check the formula and minimal counterexample;</li>
+<li>proceed only when evidence passes.</li>
+</ol>
+<h4>Mandatory checks</h4>
+<ul>
+<li>ordinary, boundary, fully masked, empty, and duplicate-value cases;</li>
+<li>legal integer and floating target boundaries;</li>
+<li>numerical stability and NaN/Inf handling;</li>
+<li>symmetry, invariance, monotonicity, or conservation properties;</li>
+<li>finite differences against autograd;</li>
+<li>parameters expected and not expected to update;</li>
+<li>train/eval, device, and dtype differences.</li>
+</ul>
+<h4>Exit criterion</h4>
+<p>Local mathematical semantics are independently established; decreasing loss alone is not evidence.</p>
+<hr>
+<h3>Gate 4: Level 2 pipeline review</h3>
+<h4>Review order</h4>
+<ol>
+<li>trace identity from the raw independent entity;</li>
+<li>verify when splitting occurs;</li>
+<li>trace every derived window, augmentation, crop, or negative;</li>
+<li>verify joint feature, label, ID, and mask alignment;</li>
+<li>inspect cache keys and data/config hashes;</li>
+<li>simulate interruption and check resume equivalence;</li>
+<li>trace checkpoint-selection evidence;</li>
+<li>independently recompute metrics from per-example records;</li>
+<li>confirm protected evaluation did not participate in selection;</li>
+<li>check denominator completeness for failures, misses, and empty cases.</li>
+</ol>
+<h4>Exit criterion</h4>
+<p>Every final metric traces through lineage to raw independent entities, an exact checkpoint, a concrete configuration, and the complete evaluation population.</p>
+<hr>
+<h3>Gate 5: authorize experiment execution</h3>
+<p>Before formal experiments begin, freeze <code>planned_runs</code>. Each row should include:</p>
+<ul>
+<li><code>run_id</code>;</li>
+<li>method and configuration hash;</li>
+<li>data and code commit;</li>
+<li>pair, block, or independent unit;</li>
+<li>seed;</li>
+<li>role: debug, tuning, validation, or final;</li>
+<li>resource maximum and timeout;</li>
+<li>evidence the run may access;</li>
+<li>expected artifacts;</li>
+<li>failure and retry policy.</li>
+</ul>
+<p>The agent may:</p>
+<ul>
+<li>execute listed runs;</li>
+<li>resume the same run;</li>
+<li>retry infrastructure failures within the approved policy;</li>
+<li>record failure and request a decision.</li>
+</ul>
+<p>The agent may not respond to poor results by:</p>
+<ul>
+<li>adding trials;</li>
+<li>changing seeds or retaining only the best seed;</li>
+<li>replacing the metric;</li>
+<li>enlarging the model;</li>
+<li>altering data or samples;</li>
+<li>accessing final evidence early;</li>
+<li>deleting failed rows;</li>
+<li>relabeling exploratory runs as preregistered runs.</li>
+</ul>
+<hr>
+<h3>Gate 6: Level 3 scientific-evidence review</h3>
+<h4>Independently reconstruct</h4>
+<ul>
+<li>equality of the planned and observed run populations;</li>
+<li>full budget and information-condition signatures for every method;</li>
+<li>true independent observation counts for each <code>(pair_id, method)</code>;</li>
+<li>compliance of inclusion and exclusion with frozen rules;</li>
+<li>exact aggregate recomputation from included rows;</li>
+<li>validity and inclusion of every claim evidence ID;</li>
+<li>effect size, uncertainty, practical significance, and multiple-comparison treatment;</li>
+<li>claim scope against the actual datasets, tasks, metrics, and conditions.</li>
+</ul>
+<h4>Human decisions when evidence is insufficient</h4>
+<p>The permitted responses are:</p>
+<ul>
+<li>run the smallest already-approved experiment;</li>
+<li>approve a clearly specified new experiment;</li>
+<li>weaken the claim;</li>
+<li>report an inconclusive or negative result;</li>
+<li>terminate the direction.</li>
+</ul>
+<p>Deleting unfavorable runs or changing the statistical unit is not a valid repair.</p>
+<hr>
+<h3>Gate 7: Level 4 governance and the Claim Gate</h3>
+<h4>Governance review</h4>
+<ul>
+<li>each adaptive action has an applicable approval;</li>
+<li>approval took effect before the action;</li>
+<li>scope and limits cover actual behavior;</li>
+<li>run, time, GPU, API, and storage usage remain within budget;</li>
+<li>failed, cancelled, and negative runs are retained;</li>
+<li>the report can be rebuilt from the complete ledger;</li>
+<li>protected evidence did not flow into later adaptive action;</li>
+<li>every subagent followed the same protocol version.</li>
+</ul>
+<h4>Final Claim Gate</h4>
+<p>The human approves each:</p>
+<ul>
+<li>claim object and scope;</li>
+<li>supporting run IDs;</li>
+<li>descriptive, predictive, stability, generalization, or causal strength;</li>
+<li>statistical and practical significance;</li>
+<li>known limitations, negative results, and anomalies;</li>
+<li>need for further replication or external validation;</li>
+<li>code, data, artifact, and log release status.</li>
+</ul>
+<p>Only claims that pass this gate enter the abstract, primary result tables, press material, or public promotion.</p>
+<hr>
+<h2>7. The best format for an agent implementation task</h2>
+<p>Avoid indefinite project-sized requests. A strong implementation task contains:</p>
+<pre><code class="language-text">Objective:
+Implement only &lt;one module or behavior&gt;.
+
+Frozen authority:
+- specification clause:
+- paper formula or algorithm location:
+- data/tensor contract:
+
+Allowed changes:
+- path/a.py
+- tests/test_a.py
+
+Forbidden changes:
+- data split
+- evaluation metric
+- unrelated interfaces
+- frozen protocol or meaning of existing tests
+
+Acceptance:
+- focused test command
+- regression command
+- property/gradient/state requirement
+
+Resource boundary:
+- no network
+- no full training
+- maximum runtime
+
+Delivery:
+1. state your understanding and risks;
+2. run tests and record RED;
+3. make the minimal implementation;
+4. report GREEN and regression evidence;
+5. list the diff, assumptions, untested paths, and decisions requiring human approval.
+</code></pre>
+<p>Keep a task to one independently verifiable behavior or roughly 30–90 minutes of agent work. Oversized tasks make failed tests difficult to localize and scientific drift difficult to detect.</p>
+<hr>
+<h2>8. Reviewing code after the agent finishes</h2>
+<h3>8.1 Do not accept a natural-language “done”</h3>
+<p>A completion claim must include:</p>
+<ul>
+<li>files actually modified;</li>
+<li>a <code>git diff</code> summary;</li>
+<li>test commands and fresh outputs;</li>
+<li>the causal relationship from failing test to repair;</li>
+<li>specification clauses and implementation locations;</li>
+<li>untested paths;</li>
+<li>environment, dependency, and resource changes;</li>
+<li>whether any approval boundary was touched.</li>
+</ul>
+<h3>8.2 Nine-step review</h3>
+<ol>
+<li><strong>Scope:</strong> only approved files and behavior changed.</li>
+<li><strong>Specification:</strong> implementation maps to frozen clauses.</li>
+<li><strong>Local semantics:</strong> formulas, shapes, axes, masks, losses, and gradients.</li>
+<li><strong>Pipeline:</strong> identity, splitting, alignment, state, and evaluation order.</li>
+<li><strong>Tests:</strong> tests fail on an incorrect implementation rather than merely covering the current one.</li>
+<li><strong>Independent recomputation:</strong> metrics, aggregates, and reports rebuild from lower-level records.</li>
+<li><strong>Failure injection:</strong> parsing, caching, resume, empty samples, and infrastructure failures propagate correctly.</li>
+<li><strong>Regression:</strong> focused, combined, repeated runs, and <code>git diff --check</code>.</li>
+<li><strong>Authority:</strong> no protocol, resource, or protected-evidence boundary was crossed.</li>
+</ol>
+<h3>8.3 Appropriate use of a second agent</h3>
+<p>A second agent can:</p>
+<ul>
+<li>independently read the specification and diff;</li>
+<li>search for minimal counterexamples;</li>
+<li>identify test blind spots;</li>
+<li>recompute lineage and metrics;</li>
+<li>check the run ledger against the report;</li>
+<li>return findings with evidence and severity without editing code.</li>
+</ul>
+<p>It cannot replace human final review because agents may share the same specification misunderstanding or training-distribution blind spot.</p>
+<h3>8.4 Repairing review findings</h3>
+<p>For every confirmed defect:</p>
+<ol>
+<li>add a focused reproducing test;</li>
+<li>execute and retain RED;</li>
+<li>make the smallest repair;</li>
+<li>execute focused GREEN;</li>
+<li>execute all relevant regressions;</li>
+<li>update risks, decisions, and limitations;</li>
+<li>return to Gate 1 if scientific protocol changes.</li>
+</ol>
+<hr>
+<h2>9. Using multiple agents efficiently</h2>
+<h3>9.1 Good parallel work</h3>
+<ul>
+<li>extracting evidence from different paper sections;</li>
+<li>independently exploring repository entry points, data flow, training, and evaluation;</li>
+<li>unit tests, property tests, and log analysis;</li>
+<li>monitoring independent approved runs;</li>
+<li>independent code review and result recomputation;</li>
+<li>drafting documentation, figures, and reproduction instructions.</li>
+</ul>
+<h3>9.2 Unsafe unconstrained parallel work</h3>
+<ul>
+<li>multiple agents editing the same core file;</li>
+<li>agents independently interpreting losses, metrics, or splits;</li>
+<li>independent expansion of search spaces;</li>
+<li>independent deletion of anomalous or failed runs;</li>
+<li>subagents writing directly into final claims;</li>
+<li>experiments without a shared protocol version and commit.</li>
+</ul>
+<h3>9.3 Recommended organization</h3>
+<ul>
+<li>one root agent decomposes work and aggregates evidence;</li>
+<li>every write task has one owner;</li>
+<li>subagents are read-only by default and receive explicit writable paths;</li>
+<li>every task cites the same protocol version and code commit;</li>
+<li>parallel tasks write separate artifacts;</li>
+<li>the root agent summarizes evidence but cannot approve scientific changes;</li>
+<li>the human resolves conflicts and approvals at gates.</li>
+</ul>
+<hr>
+<h2>10. Recommended prompts</h2>
+<h3>10.1 Project kickoff</h3>
+<pre><code class="language-text">You will help turn a research idea into reproducible and auditable experimental code. Your responsibility is high-quality execution and evidence, not autonomous changes to the scientific question.
+
+Do not write production code in the first phase. First:
+1. organize the research question, hypotheses, target construct, and success/failure criteria;
+2. list every ambiguity in data, splits, models, losses, baselines, metrics, budgets, statistics, and claims;
+3. map the project into Level 1 algorithm, Level 2 pipeline, Level 3 scientific-evidence, and Level 4 governance contracts;
+4. propose architecture, acceptance tests, a risk register, and decisions requiring human judgment;
+5. define automatically permitted, prior-approval, and prohibited actions;
+6. wait for approval of the frozen protocol before implementation.
+
+Stop and request approval before changing data, sample construction, splits, models, losses, metrics, baseline conditions, search budgets, checkpoint/test rules, statistical methods, or the primary claim.
+</code></pre>
+<h3>10.2 Bounded implementation task</h3>
+<pre><code class="language-text">Implement only this approved task; do not expand scope.
+
+Objective:
+Frozen specification:
+Allowed files:
+Forbidden changes:
+Focused tests:
+Regression tests:
+Resource limits:
+
+Follow RED → minimal implementation → GREEN → regression → self-review. Deliver:
+- modified files and key diff;
+- test commands and results;
+- specification-to-code mapping;
+- minimal counterexample or property evidence;
+- untested assumptions and risks;
+- any approval boundary touched.
+</code></pre>
+<h3>10.3 Independent code review</h3>
+<pre><code class="language-text">Act as an independent reviewer. Review only; do not modify code.
+
+Given the frozen specification, diff, tests, and run artifacts, check:
+1. Level 1: formulas, shapes, axes, masks, losses, gradients;
+2. Level 2: identity, splits, alignment, state, checkpoints, evaluation boundaries;
+3. Level 3: baseline information and budgets, experimental units, exclusions, statistics, claims;
+4. Level 4: permissions, approvals, resources, failed-run records, protected-evidence flow.
+
+Every finding must contain:
+- severity;
+- exact location or evidence ID;
+- violated clause;
+- why the system may still run;
+- minimal counterexample or validation command;
+- smallest safe repair;
+- “insufficient evidence” when the record does not justify a conclusion.
+</code></pre>
+<h3>10.4 Experiment execution</h3>
+<pre><code class="language-text">Run only approved planned_runs. Do not autonomously optimize the research design.
+
+For every run record run_id, commit, config hash, data hash, seed, start/end time, resources, status, checkpoint, metric artifact, and terminal event.
+
+Infrastructure failures may be resumed only within the approved retry policy. If data, model, loss, metric, search range, budget, stopping rule, or test usage must change, stop and submit:
+1. current evidence;
+2. failure cause;
+3. smallest proposed change;
+4. scientific and budget impact;
+5. a request for human approval.
+
+Do not delete failed runs, report only the best result, or allow protected evaluation to influence later development.
+</code></pre>
+<h3>10.5 Claim review</h3>
+<pre><code class="language-text">Audit every claim against planned_runs, the complete run ledger, aggregates, frozen statistical rules, and claims.json.
+
+Do not treat plausible results as evidence. Verify:
+- completeness and validity of evidence run IDs;
+- fairness of budgets and information conditions;
+- independent units, pairing, and sample size;
+- preregistered exclusions;
+- independent aggregate recomputation;
+- effect size, uncertainty, and practical significance;
+- scope against data, task, metric, and experimental conditions;
+- failed runs, negative results, and limitations.
+
+Return: allow, weaken, require experiments, or block release, with traceable evidence. The human research owner makes the final decision.
+</code></pre>
+<hr>
+<h2>11. Measuring whether collaboration is actually efficient</h2>
+<p>Do not measure only lines of code written by the agent. Track:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Time from protocol approval to first trusted smoke run</td>
+<td>Implementation speed</td>
+</tr>
+<tr>
+<td>First-pass gate rate</td>
+<td>Quality of specification and task decomposition</td>
+</tr>
+<tr>
+<td>Regressions found per change</td>
+<td>Test effectiveness</td>
+</tr>
+<tr>
+<td>Protocol defects found before production code</td>
+<td>Value of early review</td>
+</tr>
+<tr>
+<td>Unapproved protocol changes</td>
+<td>Governance reliability</td>
+</tr>
+<tr>
+<td>Run-ledger completeness</td>
+<td>Experiment auditability</td>
+</tr>
+<tr>
+<td>Resume-equivalence rate</td>
+<td>Operational quality</td>
+</tr>
+<tr>
+<td>Percentage of metrics independently recomputable</td>
+<td>Evidence quality</td>
+</tr>
+<tr>
+<td>Claim-evidence coverage</td>
+<td>Conclusion traceability</td>
+</tr>
+<tr>
+<td>Failed and negative result retention</td>
+<td>Reporting completeness</td>
+</tr>
+<tr>
+<td>Human time on mechanical work versus scientific decisions</td>
+<td>Quality of division of labor</td>
+</tr>
+</tbody></table>
+<p>The desired state is:</p>
+<ul>
+<li>the agent handles repetitive, checkable, high-bandwidth work;</li>
+<li>automated tests enforce deterministic invariants;</li>
+<li>human time concentrates on problem definition, ambiguity, protocol, evidence, and claims;</li>
+<li>high-risk failures are found with small experiments before expensive training;</li>
+<li>third parties can reconstruct every final conclusion.</li>
+</ul>
+<hr>
+<h2>12. Common failure modes</h2>
+<h3>12.1 “Continue optimizing until the metric improves”</h3>
+<p>Risk: unlimited search expansion, test leakage, and post-hoc hypothesis changes.</p>
+<p>Replacement: a frozen run matrix, budget, stopping rule, and approval boundary.</p>
+<h3>12.2 Asking the agent to build the entire project at once</h3>
+<p>Risk: no distinction between specification decisions and agent invention.</p>
+<p>Replacement: bounded tasks and one independently verifiable behavior per merge.</p>
+<h3>12.3 Reviewing only the final diff</h3>
+<p>Risk: invisible permission violations, failed runs, and test peeking.</p>
+<p>Replacement: audit code, events, approvals, run ledgers, and report reconstruction.</p>
+<h3>12.4 Approving because tests pass</h3>
+<p>Risk: the tests may encode the wrong rule.</p>
+<p>Replacement: review the specification, then whether tests kill wrong implementations, then production code.</p>
+<h3>12.5 Letting one agent implement, prove, and approve its own work</h3>
+<p>Risk: shared blind spots are repeatedly confirmed.</p>
+<p>Replacement: separate mechanical verification, independent agent review, and human gates.</p>
+<h3>12.6 Retaining only the best experiments</h3>
+<p>Risk: seed, checkpoint, and selective-reporting bias.</p>
+<p>Replacement: complete <code>planned_runs</code>, an immutable ledger, and preregistered exclusions.</p>
+<h3>12.7 Treating a descriptive difference as established improvement</h3>
+<p>Risk: conflating numerical description, statistical evidence, and practical significance.</p>
+<p>Replacement: freeze analysis units, pairing, effect sizes, intervals, and practical thresholds.</p>
+<h3>12.8 Treating absent approval records as positive proof of a violation</h3>
+<p>Risk: missing logs do not necessarily establish that approval never existed.</p>
+<p>Replacement: freeze a complete approval set and prove conflicts through status, time, scope, or limits.</p>
+<hr>
+<h2>13. Minimal and rigorous variants</h2>
+<h3>13.1 Small course project or early exploration</h3>
+<p>Minimum:</p>
+<ul>
+<li>a one-page <code>RESEARCH_SPEC.md</code>;</li>
+<li>frozen data, split, metric, and budget;</li>
+<li>Level 1 and Level 2 automated tests;</li>
+<li>configuration, seed, commit, and result for every run;</li>
+<li>no test-based selection;</li>
+<li>human review of final tables and claims.</li>
+</ul>
+<h3>13.2 Paper, thesis, or public repository</h3>
+<p>Add:</p>
+<ul>
+<li>a machine-readable frozen protocol;</li>
+<li>planned, observed, aggregate, and claim evidence layers;</li>
+<li>complete approvals and decision logs;</li>
+<li>repeated and paired statistical analysis;</li>
+<li>Level 1–4 audit reports;</li>
+<li>independent agent or second-person review;</li>
+<li>reproduction and report reconstruction before release.</li>
+</ul>
+<h3>13.3 High-risk, expensive, or regulated research</h3>
+<p>Further add:</p>
+<ul>
+<li>data-governance, ethics, and privacy approval;</li>
+<li>immutable raw data and artifact storage;</li>
+<li>environment images and supply-chain review;</li>
+<li>independent statistical review;</li>
+<li>external replication;</li>
+<li>least-privilege access and complete action logs;</li>
+<li>preregistration or formal change control.</li>
+</ul>
+<hr>
+<h2>14. One-page checklist</h2>
+<h3>Before agent implementation</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Research question and primary hypothesis are frozen.</li>
+<li><input disabled="" type="checkbox"> Data, independent unit, and split are frozen.</li>
+<li><input disabled="" type="checkbox"> Model, loss, baselines, metrics, and candidate set are frozen.</li>
+<li><input disabled="" type="checkbox"> Search, budget, stopping, and checkpoint rules are frozen.</li>
+<li><input disabled="" type="checkbox"> Test and protected-evidence boundaries are frozen.</li>
+<li><input disabled="" type="checkbox"> Statistical method and permitted claims are frozen.</li>
+<li><input disabled="" type="checkbox"> Automatic, prior-approval, and prohibited actions are explicit.</li>
+<li><input disabled="" type="checkbox"> Architecture, data contract, and tensor contract are reviewed.</li>
+<li><input disabled="" type="checkbox"> Acceptance tests produced valid RED before implementation.</li>
+</ul>
+<h3>After every agent code delivery</h3>
+<ul>
+<li><input disabled="" type="checkbox"> The diff is within approved scope.</li>
+<li><input disabled="" type="checkbox"> Focused tests freshly pass.</li>
+<li><input disabled="" type="checkbox"> Relevant regressions pass.</li>
+<li><input disabled="" type="checkbox"> Formula, shape, mask, loss, and gradient semantics are checked.</li>
+<li><input disabled="" type="checkbox"> Identity, splits, state, and evaluation order are checked.</li>
+<li><input disabled="" type="checkbox"> New tests fail on a relevant incorrect implementation.</li>
+<li><input disabled="" type="checkbox"> No silent dependency, environment, or protocol change occurred.</li>
+<li><input disabled="" type="checkbox"> Untested assumptions and risks are recorded.</li>
+<li><input disabled="" type="checkbox"> Findings closed through new RED → repair → GREEN evidence.</li>
+</ul>
+<h3>Before formal experiments</h3>
+<ul>
+<li><input disabled="" type="checkbox"> <code>planned_runs</code> is complete.</li>
+<li><input disabled="" type="checkbox"> Configurations, data, and code have hashes or commits.</li>
+<li><input disabled="" type="checkbox"> Budgets and information conditions are comparable.</li>
+<li><input disabled="" type="checkbox"> Run roles and protected-evidence rules are explicit.</li>
+<li><input disabled="" type="checkbox"> Resource limits and retries are approved.</li>
+<li><input disabled="" type="checkbox"> Failed and negative result retention is defined.</li>
+</ul>
+<h3>Before results enter a paper</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Planned and observed populations agree.</li>
+<li><input disabled="" type="checkbox"> Aggregates rebuild from lower-level records.</li>
+<li><input disabled="" type="checkbox"> Exclusions obey frozen rules.</li>
+<li><input disabled="" type="checkbox"> Independent units, pairing, and sample size are correct.</li>
+<li><input disabled="" type="checkbox"> Claims cite exact evidence IDs.</li>
+<li><input disabled="" type="checkbox"> Statistical and practical significance are calibrated.</li>
+<li><input disabled="" type="checkbox"> Failures, negative results, and limitations are disclosed.</li>
+<li><input disabled="" type="checkbox"> Approvals, resources, and protected-evidence flow are audited.</li>
+<li><input disabled="" type="checkbox"> The human research owner completed the final Claim Gate.</li>
+</ul>
+<hr>
+<h2>15. Final principle</h2>
+<p>Efficient human–agent research collaboration does not require a human to watch every line, and it does not permit an agent to continue acting until it produces attractive results.</p>
+<p>The reliable division of labor is:</p>
+<blockquote>
+<p><strong>Humans freeze the problem, contracts, permissions, and claims; agents implement, test, operate, and organize at high speed; automated checks enforce invariants; and humans approve changes to scientific meaning only when complete evidence is available.</strong></p>
+</blockquote>
+<p>Agent execution speed becomes research efficiency only when code, data, state, experiments, approvals, and claims form a reconstructable evidence chain.</p>
+<hr>
+<h2>16. Relationship to this repository&#39;s four-level curriculum</h2>
+<p>This guide applies the repository&#39;s human research-code audit curriculum in reverse to the construction of real human–agent projects:</p>
+<ul>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/README.md">Training repository overview</a>: coding-agent boundaries, the programmer&#39;s new role, and the four-level training objective;</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/SKILL.md">Research Code Audit Training Skill</a>: test-driven implementation, public/hidden validation, evidence-rich review, and correction;</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/four-level-framework.md">Four-level contract boundaries</a>: classification rules for algorithm, pipeline, scientific-validity, and governance failures;</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/quality-gates.md">Quality gates</a>: RED/GREEN evidence, minimal counterexamples, false-positive control, and rejection conditions;</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/artifact-contracts.md">Artifact contracts</a>: manifests, run ledgers, claims, and governance artifacts;</li>
+<li><a href="https://github.com/heisenberg0020/research-code-stewardship-lab/blob/main/skills/research-code-audit-training/references/level3-level4-implementation-lessons.md">Level 3/4 implementation lessons</a>: structured planned, observed, aggregate, claim, approval, and evidence-flow requirements.</li>
+</ul>
+<p>The curriculum asks which candidate implementation or experiment dossier is trustworthy. This workflow asks the same question at every real development gate, before a defect reaches expensive experiments or a publication claim.</p>
+</section>
