@@ -38,6 +38,14 @@ window.BLOG_POSTS = [
     url: "https://github.com/heisenberg0020/research-code-stewardship-lab",
     body: [],
   },
+
+  /*
+   * BLOG 创建模板（默认隐藏，不会显示在网页上）
+   * ---------------------------------------------------------------
+   * 下面三个条目分别是 Publication、Project 和 Essay 的填写示例。
+   * 以后新增内容时，复制所需类型的完整 { ... } 条目，粘贴到本注释
+   * 上方并修改字段即可。不要直接删除这些模板，方便后续参考编辑。
+   *
   {
     slug: "your-latest-publication",
     type: "publication",
@@ -76,4 +84,5 @@ window.BLOG_POSTS = [
       "<p>You can also add a <a href=\"https://example.com\">link inside a paragraph</a>.</p>",
     ],
   },
+   */
 ];
