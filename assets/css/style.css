@@ -768,19 +768,15 @@ a:hover {
 }
 
 .essay-language-nav {
-  position: sticky;
-  top: 88px;
-  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
   margin-bottom: 1.5rem;
   padding: 0.8rem 1rem;
-  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 8px;
-  backdrop-filter: blur(10px);
 }
 
 .essay-language-nav a {
@@ -929,10 +925,6 @@ a:hover {
 
   .site-nav a::after {
     display: none;
-  }
-
-  .essay-language-nav {
-    top: 78px;
   }
 
   .workflow-figure {
