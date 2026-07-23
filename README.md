@@ -48,6 +48,14 @@ Research 和 Interests 已从主页移除。
 - `"project"`：项目
 - `"essay"`：个人随笔
 
+长篇 Essay 可以把正文保存为独立的同源 HTML 片段，并在条目中使用：
+
+```js
+contentUrl: "essays/your-essay.html",
+```
+
+这样可以同时保留 Markdown 源文件、图表资产和生成后的 Blog 正文，避免把大量 HTML 全部写进 `blog-data.js`。
+
 页面会按 `date` 自动从新到旧排序，并能按类型筛选。
 
 - 如果 `url` 填写网址，点击条目会直接打开论文、代码仓库或项目网站。
@@ -84,6 +92,7 @@ python3 -m http.server 8000
 ├── blog.html                # Blog 页面结构，通常不需要改
 ├── content.js               # 个人信息与 About 内容
 ├── blog-data.js             # 论文、项目、随笔都在这里编辑
+├── essays/                  # 长篇 Essay、Markdown 源文件和图表
 ├── assets/
 │   ├── css/style.css        # 视觉样式
 │   ├── images/profile.jpg   # 头像
