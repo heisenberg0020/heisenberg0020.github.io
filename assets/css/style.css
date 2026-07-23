@@ -513,6 +513,195 @@ a:hover {
   margin: 0;
 }
 
+.blog-shell {
+  width: min(920px, calc(100% - 3rem));
+  min-height: calc(100vh - 150px);
+  margin: 0 auto;
+  padding: clamp(4rem, 9vw, 7rem) 0 6rem;
+}
+
+.blog-hero {
+  max-width: 760px;
+  margin-bottom: 3.5rem;
+}
+
+.blog-hero h1,
+.post-header h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(3.8rem, 10vw, 7rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+}
+
+.blog-hero > p:last-child,
+.post-header > p {
+  max-width: 680px;
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+  line-height: 1.5;
+}
+
+.blog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.blog-filters button {
+  padding: 0.52rem 0.9rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 99px;
+  font: 700 0.76rem/1 var(--sans);
+  letter-spacing: 0.045em;
+  cursor: pointer;
+}
+
+.blog-filters button:hover,
+.blog-filters button.active {
+  color: var(--white);
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.blog-item {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  padding: 2.25rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.blog-item-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.blog-kind {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.blog-item h2 {
+  grid-column: 2;
+  margin: -2.65rem 0 0.7rem;
+  font-family: var(--serif);
+  font-size: clamp(1.55rem, 3.5vw, 2.15rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.blog-item h2 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.blog-item h2 a:hover {
+  color: var(--accent);
+}
+
+.blog-item > p,
+.blog-item > div:not(.blog-item-meta) {
+  grid-column: 2;
+}
+
+.blog-item > p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.blog-byline {
+  margin-top: 0.55rem !important;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.blog-tags span {
+  padding: 0.25rem 0.62rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: 3rem 0;
+  color: var(--muted);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 3rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.post-header {
+  max-width: 780px;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.post-header h1 {
+  margin-top: 1rem;
+  font-size: clamp(2.8rem, 7vw, 5.2rem);
+  line-height: 1.02;
+}
+
+.post-header .blog-item-meta {
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.post-body {
+  max-width: 720px;
+  padding-top: 2.5rem;
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  line-height: 1.85;
+}
+
+.post-body h2 {
+  margin: 2.75rem 0 1rem;
+  font-size: 1.85rem;
+  line-height: 1.25;
+}
+
+.post-body p,
+.post-body ul,
+.post-body ol {
+  margin: 0 0 1.4rem;
+}
+
+.post-body img {
+  max-width: 100%;
+  height: auto;
+}
+
 @media (max-width: 860px) {
   .page-shell {
     grid-template-columns: 1fr;
@@ -566,6 +755,7 @@ a:hover {
 @media (max-width: 680px) {
   .header-inner,
   .page-shell,
+  .blog-shell,
   .site-footer {
     width: min(100% - 2rem, 1180px);
   }
@@ -666,6 +856,26 @@ a:hover {
 
   .site-footer p + p {
     margin-top: 0.35rem;
+  }
+
+  .blog-item {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-item-meta {
+    flex-direction: row;
+    gap: 0.75rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .blog-item h2,
+  .blog-item > p,
+  .blog-item > div:not(.blog-item-meta) {
+    grid-column: 1;
+  }
+
+  .blog-item h2 {
+    margin: 0 0 0.7rem;
   }
 }
 

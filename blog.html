@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Publications, projects, and notes" />
+    <meta name="theme-color" content="#f7f6f2" />
+    <title>Blog</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="content.js" defer></script>
+    <script src="blog-data.js" defer></script>
+    <script src="assets/js/blog.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="wordmark" href="index.html" aria-label="Go to homepage">
+          <span class="wordmark-mark" aria-hidden="true"></span>
+          <span data-content="name">Your Name</span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+          <span></span><span></span><span></span>
+          <span class="sr-only">Toggle navigation</span>
+        </button>
+
+        <nav id="site-nav" class="site-nav" aria-label="Main navigation">
+          <a href="index.html">About</a>
+          <a class="active" href="blog.html">Blog</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="blog-shell">
+      <div id="blog-index">
+        <header class="blog-hero">
+          <p class="eyebrow">Writing &amp; Work</p>
+          <h1>Blog</h1>
+          <p>Publications, projects, and personal notes—all in one place.</p>
+        </header>
+
+        <div id="blog-filters" class="blog-filters" aria-label="Filter blog posts">
+          <button class="active" type="button" data-filter="all">All</button>
+          <button type="button" data-filter="publication">Publications</button>
+          <button type="button" data-filter="project">Projects</button>
+          <button type="button" data-filter="essay">Essays</button>
+        </div>
+
+        <div id="blog-list" class="blog-list" aria-live="polite"></div>
+      </div>
+
+      <article id="post-view" class="post-view" hidden>
+        <a class="back-link" href="blog.html">← All posts</a>
+        <div id="post-content"></div>
+      </article>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="current-year"></span> <span data-content="name">Your Name</span></p>
+      <p>Publications, projects, and notes.</p>
+    </footer>
+  </body>
+</html>

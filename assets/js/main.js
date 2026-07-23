@@ -14,8 +14,6 @@
     "tagline",
     "location",
     "affiliation",
-    "researchIntro",
-    "interestsIntro",
   ];
 
   textFields.forEach((field) => {
@@ -63,57 +61,6 @@
     aboutContent.appendChild(element);
   });
 
-  const researchList = document.getElementById("research-list");
-  (content.research || []).forEach((item) => {
-    const article = document.createElement("article");
-    article.className = "research-card";
-
-    const keywords = (item.keywords || [])
-      .map((keyword) => `<li>${keyword}</li>`)
-      .join("");
-
-    article.innerHTML = `
-      <span class="card-number">${item.number || ""}</span>
-      <h3>${item.title}</h3>
-      <p>${item.description}</p>
-      ${keywords ? `<ul class="keyword-list">${keywords}</ul>` : ""}
-    `;
-    researchList.appendChild(article);
-  });
-
-  const publicationsList = document.getElementById("publications-list");
-  (content.publications || []).forEach((item) => {
-    const listItem = document.createElement("li");
-    listItem.className = "publication-item";
-
-    const links = (item.links || [])
-      .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`)
-      .join("");
-
-    listItem.innerHTML = `
-      <div class="publication-year">${item.year}</div>
-      <article>
-        <h3>${item.title}</h3>
-        <p class="publication-authors">${item.authors}</p>
-        <p class="publication-venue">${item.venue}</p>
-        ${links ? `<div class="publication-links">${links}</div>` : ""}
-      </article>
-    `;
-    publicationsList.appendChild(listItem);
-  });
-
-  const interestsList = document.getElementById("interests-list");
-  (content.interests || []).forEach((item, index) => {
-    const article = document.createElement("article");
-    article.className = "interest-item";
-    article.innerHTML = `
-      <span class="card-number">${String(index + 1).padStart(2, "0")}</span>
-      <h3>${item.title}</h3>
-      <p>${item.description}</p>
-    `;
-    interestsList.appendChild(article);
-  });
-
   document.getElementById("current-year").textContent = new Date().getFullYear();
 
   const menuButton = document.querySelector(".menu-toggle");
@@ -130,18 +77,4 @@
     });
   });
 
-  const sections = [...document.querySelectorAll("main section[id]")];
-  const navLinks = [...nav.querySelectorAll("a")];
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        navLinks.forEach((link) => {
-          link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`);
-        });
-      });
-    },
-    { rootMargin: "-25% 0px -65%", threshold: 0 },
-  );
-  sections.forEach((section) => observer.observe(section));
 })();
