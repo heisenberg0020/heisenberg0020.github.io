@@ -16,6 +16,17 @@
 
 window.BLOG_POSTS = [
   {
+    slug: "research-code-stewardship-lab",
+    type: "project",
+    date: "2026-07-21",
+    title: "Research Code Stewardship Lab",
+    summary: "A four-level training lab for auditing whether AI-built research code remains faithful to papers, experimental protocols, and scientific claims.",
+    tags: ["Research Code", "Code Audit", "AI Agents"],
+    meta: "Open-source training framework · GitHub",
+    url: "https://github.com/heisenberg0020/research-code-stewardship-lab",
+    body: [],
+  },
+  {
     slug: "your-latest-publication",
     type: "publication",
     date: "2026-01-20",
