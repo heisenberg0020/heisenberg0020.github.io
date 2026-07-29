@@ -14,8 +14,8 @@ window.SITE_CONTENT = {
   // ---------- 基本信息 ----------
   name: "Guanming FANG",
   initials: "Heisenberg",
-  title: "Your title or short bio",
-  tagline: "Machine Learning and Deeplearning",
+  title: "3rd Year MATH+CS UG",
+  tagline: "Machine Learning and Deep learning",
   location: "Hong Kong",
   affiliation: "Hong Kong University of Science and Technology",
   profilePhoto: "assets/images/profile.jpg",
