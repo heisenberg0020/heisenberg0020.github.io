@@ -215,6 +215,12 @@ a:hover {
   letter-spacing: -0.08em;
 }
 
+/* The JavaScript toggles the hidden attribute after the avatar loads. */
+.portrait[hidden],
+.portrait-placeholder[hidden] {
+  display: none !important;
+}
+
 .profile-card h1 {
   margin: 0;
   font-family: var(--serif);

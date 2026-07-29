@@ -12,28 +12,28 @@
 
 window.SITE_CONTENT = {
   // ---------- 基本信息 ----------
-  name: "Your Name",
-  initials: "YN",
+  name: "Guanming FANG",
+  initials: "Heisenberg",
   title: "Your title or short bio",
-  tagline: "A one-sentence introduction to your work and what you care about.",
-  location: "City, Country",
-  affiliation: "Your University or Organization",
+  tagline: "Machine Learning and Deeplearning",
+  location: "Hong Kong",
+  affiliation: "Hong Kong University of Science and Technology",
   profilePhoto: "assets/images/profile.jpg",
 
   // ---------- 左侧联系方式 ----------
   links: [
-    { label: "Email", url: "mailto:you@example.com" },
-    { label: "GitHub", url: "https://github.com/your-username" },
-    { label: "Google Scholar", url: "https://scholar.google.com/" },
-    { label: "ORCID", url: "https://orcid.org/" },
+    { label: "Email", url: "mailto:fgm0020@outlook.com" },
+    { label: "GitHub", url: "https://github.com/heisenberg0020" },
+    //{ label: "Google Scholar", url: "https://scholar.google.com/" },
+    //{ label: "ORCID", url: "https://orcid.org/" },
   ],
 
   // ---------- About ----------
   // 每一个引号中的段落会自动显示为一个自然段。
   about: [
-    "Write a short introduction here. Explain who you are, what you currently do, and the broad questions that motivate your work.",
-    "Use a second paragraph for your background, education, previous experience, or collaborators. You may add or remove paragraphs freely.",
-    "You can include links inside a paragraph by using simple HTML, for example: I work at <a href=\"https://example.com\">Example Lab</a>.",
+    "I am a 3rd Year UG student at HKUST, Currently focusing on Recommendation System and interested in Deeplearning for long term.",
+    //"Use a second paragraph for your background, education, previous experience, or collaborators. You may add or remove paragraphs freely.",
+    "I am still in investigating an area for long time research. If you like ML, DL or mathematical modeling, feel free for a coffee chat.",
   ],
 
 };
