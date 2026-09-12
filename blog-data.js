@@ -16,6 +16,17 @@
 
 window.BLOG_POSTS = [
   {
+    slug: "cumcm-autonomous-harness",
+    type: "project",
+    date: "2026-09-11",
+    title: "CUMCM Autonomous Harness",
+    summary: "A domain workflow harness for CUMCM modeling: it supports autonomous modeling, traceable experiments, bounded review, and a LaTeX paper toolchain.",
+    tags: ["CUMCM", "Mathematical Modeling", "AI Agents"],
+    meta: "Open-source workflow harness · Python · GitHub",
+    url: "https://github.com/heisenberg0020/cumcm-autonomous-harness",
+    body: [],
+  },
+  {
     slug: "human-agent-research-engineering-workflow",
     type: "essay",
     date: "2026-07-23",
