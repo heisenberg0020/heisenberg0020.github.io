@@ -12,7 +12,7 @@
 
 window.SITE_CONTENT = {
   // ---------- 基本信息 ----------
-  name: "Guanming FANG",
+  name: "Gavin FANG",
   initials: "Heisenberg",
   title: "3rd Year MATH+CS UG",
   tagline: "Machine Learning and Deep learning",
@@ -31,9 +31,9 @@ window.SITE_CONTENT = {
   // ---------- About ----------
   // 每一个引号中的段落会自动显示为一个自然段。
   about: [
-    "I am a 3rd Year UG student at HKUST, Currently focusing on Recommendation System and interested in Deeplearning for long term.",
+    "Hi there. This is Guanming FANG's personal web, with some blogs",
     //"Use a second paragraph for your background, education, previous experience, or collaborators. You may add or remove paragraphs freely.",
-    "I am still in investigating an area for long time research. If you like ML, DL or mathematical modeling, feel free for a coffee chat.",
+    "I am currently investigate Recommendation system. If you like ML DL or just curious about me ,feel free for a coffee chat.",
   ],
 
 };
