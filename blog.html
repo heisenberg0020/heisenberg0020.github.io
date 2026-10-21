@@ -9,7 +9,10 @@
     <link rel="stylesheet" href="assets/css/style.css" />
     <script src="content.js" defer></script>
     <script src="blog-data.js?v=20261021-hidden" defer></script>
-    <script src="assets/js/blog.js" defer></script>
+    <script src="assets/js/vendor/marked.umd.js" defer></script>
+    <script src="assets/js/vendor/purify.min.js" defer></script>
+    <script src="assets/js/notes.js?v=20261021" defer></script>
+    <script src="assets/js/blog.js?v=20261021-notes" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -29,6 +32,7 @@
         <nav id="site-nav" class="site-nav" aria-label="Main navigation">
           <a href="index.html">About</a>
           <a class="active" href="blog.html">Blog</a>
+          <a class="writer-link" href="admin/">写随记</a>
         </nav>
       </div>
     </header>
@@ -46,6 +50,7 @@
           <button type="button" data-filter="publication">Publications</button>
           <button type="button" data-filter="project">Projects</button>
           <button type="button" data-filter="essay">Essays</button>
+          <button type="button" data-filter="note">随记</button>
         </div>
 
         <div id="blog-list" class="blog-list" aria-live="polite"></div>

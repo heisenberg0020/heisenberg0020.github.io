@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" content="#f7f6f2" />
+    <title>写随记 — Guanming FANG</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link rel="stylesheet" href="writer.css?v=20261021" />
+    <script src="../assets/js/vendor/marked.umd.js" defer></script>
+    <script src="../assets/js/vendor/purify.min.js" defer></script>
+    <script src="../assets/js/notes.js?v=20261021" defer></script>
+    <script src="writer.js?v=20261021" defer></script>
+  </head>
+  <body>
+    <div id="writer-shell">
+      <header class="site-header">
+        <div class="header-inner">
+          <a class="wordmark" href="../index.html"><span class="wordmark-mark" aria-hidden="true"></span>Guanming FANG</a>
+          <nav class="writer-nav" aria-label="主导航">
+            <a href="../index.html">About</a><a href="../blog.html">Blog</a><a class="active" href="./">写随记</a>
+          </nav>
+        </div>
+      </header>
+      <main class="writer-shell">
+        <header class="writer-hero">
+          <p class="eyebrow">A LITTLE NOTE TO THE FUTURE</p>
+          <h1>写点什么，<br />留给未来。</h1>
+          <p class="writer-lead">一个念头，一段见闻，或是今天值得记住的小事。</p>
+          <p class="writer-access">仅授权作者可发布 · 读者可以阅读你的公开随记</p>
+        </header>
+        <section class="writer-card" id="connection-card" aria-labelledby="connection-title">
+          <p class="writer-step">首次使用</p>
+          <h2 id="connection-title">连接你的写作空间</h2>
+          <p>完成一次连接后，就可以在这里登录、写作和发布。</p>
+          <ol class="setup-steps">
+            <li><strong>注册或登录 Decap Turbo</strong><span>选择 Free 方案，保留你自己的一个账号。</span></li>
+            <li><strong>连接主页仓库</strong><span>安装 GitHub 应用时，只选择个人主页这个仓库。</span></li>
+            <li><strong>复制 Site ID，回到这里</strong><span>这是网站标识，不是密码。填入后即可进入登录页。</span></li>
+          </ol>
+          <a class="writer-button" href="https://turbo.decapcms.org/signup" target="_blank" rel="noopener noreferrer">打开 Decap Turbo ↗</a>
+          <details class="setup-details">
+            <summary>连接时需要填写的信息</summary>
+            <dl>
+              <div><dt>Git provider</dt><dd>GitHub</dd></div>
+              <div><dt>Repo</dt><dd>heisenberg0020/heisenberg0020.github.io</dd></div>
+              <div><dt>Branch</dt><dd>master</dd></div>
+              <div><dt>Config path</dt><dd>admin/config.yml</dd></div>
+              <div><dt>Admin interface URL</dt><dd>https://heisenberg0020.github.io/admin/</dd></div>
+            </dl>
+          </details>
+          <form id="connect-form" class="connect-form">
+            <label for="site-id">Site ID</label>
+            <div class="connect-row">
+              <input id="site-id" name="site-id" type="text" placeholder="粘贴 Decap Turbo 的 Site ID" autocomplete="off" spellcheck="false" required pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" />
+              <button class="writer-button" type="submit">进入写作</button>
+            </div>
+            <p class="writer-hint">此浏览器会记住 Site ID；登录与发布权限由 Decap 验证。</p>
+          </form>
+        </section>
+        <section class="writer-card" id="ready-card" hidden aria-labelledby="ready-title">
+          <p class="writer-step">你的写作空间</p>
+          <h2 id="ready-title">把今天记下来。</h2>
+          <p>登录后，打开「写随记」，点击「添加一篇随记」。可以直接输入正文、排版和上传图片。</p>
+          <button class="writer-button" id="open-editor" type="button">登录并开始写作</button>
+          <button class="writer-text-button" id="change-connection" type="button">更换连接</button>
+        </section>
+        <p id="writer-status" class="writer-status" role="status" aria-live="polite">正在读取写作空间…</p>
+        <p class="writer-footnote">随记发布在公开主页。保存到仓库的内容也会公开，私密想法请留在个人笔记里。</p>
+      </main>
+    </div>
+  </body>
+</html>

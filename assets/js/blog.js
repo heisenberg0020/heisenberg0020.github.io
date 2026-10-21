@@ -2,13 +2,15 @@
   "use strict";
 
   const site = window.SITE_CONTENT || {};
-  const posts = [...(window.BLOG_POSTS || [])].sort(
-    (a, b) => new Date(b.date) - new Date(a.date),
-  );
+  let posts = [...(window.BLOG_POSTS || [])];
+  let loading = true;
+  let notesFailed = false;
+  let activeFilter = "all";
   const labels = {
     publication: "Publication",
     project: "Project",
     essay: "Essay",
+    note: "随记",
   };
 
   document.querySelectorAll('[data-content="name"]').forEach((element) => {
@@ -45,6 +47,7 @@
     post.url || `blog.html?post=${encodeURIComponent(post.slug)}`;
 
   const loadPostBody = async (post) => {
+    if (typeof post.markdown === "string") return window.SITE_NOTES.renderBody(post.markdown);
     if (!post.contentUrl) return (post.body || []).join("");
 
     const response = await fetch(post.contentUrl, { cache: "no-cache" });
@@ -83,8 +86,13 @@
       })
       .join("");
 
-    if (!visiblePosts.length) {
+    if (!visiblePosts.length && loading) {
+      list.innerHTML = '<p class="empty-state" role="status">Loading posts…</p>';
+    } else if (!visiblePosts.length) {
       list.innerHTML = '<p class="empty-state">No posts in this category yet.</p>';
+    }
+    if (notesFailed && (filter === "all" || filter === "note")) {
+      list.insertAdjacentHTML("beforeend", '<p class="content-error" role="status">Notes could not be loaded. Please refresh to try again.</p>');
     }
   };
 
@@ -127,13 +135,23 @@
       document.querySelectorAll("[data-filter]").forEach((item) => {
         item.classList.toggle("active", item === button);
       });
-      renderList(button.dataset.filter);
+      activeFilter = button.dataset.filter;
+      renderList(activeFilter);
     });
   });
 
   const initialize = async () => {
+    renderList();
+    try {
+      posts.push(...(await window.SITE_NOTES.load()));
+    } catch (error) {
+      console.error(error);
+      notesFailed = true;
+    }
+    loading = false;
+    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
     const postSlug = new URLSearchParams(window.location.search).get("post");
-    if (!postSlug || !(await showPost(postSlug))) renderList();
+    if (!postSlug || !(await showPost(postSlug))) renderList(activeFilter);
   };
 
   initialize();

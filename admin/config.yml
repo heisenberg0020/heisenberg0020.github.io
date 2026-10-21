@@ -1,0 +1,51 @@
+{
+  "backend": {
+    "name": "turbo-github",
+    "turbo_site_id": "",
+    "branch": "master"
+  },
+  "locale": "zh_Hans",
+  "site_url": "https://heisenberg0020.github.io",
+  "display_url": "https://heisenberg0020.github.io/blog.html",
+  "media_folder": "assets/images/notes",
+  "public_folder": "/assets/images/notes",
+  "publish": true,
+  "collections": [
+    {
+      "name": "notebook",
+      "label": "我的随记",
+      "delete": false,
+      "files": [
+        {
+          "name": "notes",
+          "label": "写随记",
+          "file": "notes.json",
+          "format": "json",
+          "description": "添加一篇随记，用工具栏排版，再点击右上角发布。保存的内容会进入公开仓库，请勿填写私密信息。",
+          "fields": [
+            {
+              "name": "notes",
+              "label": "随记",
+              "label_singular": "一篇随记",
+              "widget": "list",
+              "default": [],
+              "collapsed": true,
+              "summary": "{{fields.date}} · {{fields.title}}",
+              "allow_reorder": false,
+              "allow_remove": false,
+              "fields": [
+                { "name": "id", "widget": "hidden", "default": "", "required": false },
+                { "name": "title", "label": "标题", "widget": "string" },
+                { "name": "date", "label": "日期", "widget": "datetime", "default": "{{now}}", "date_format": "YYYY-MM-DD", "time_format": false },
+                { "name": "summary", "label": "一句话简介", "widget": "text", "required": false },
+                { "name": "tags", "label": "标签", "widget": "list", "required": false, "default": [] },
+                { "name": "visible", "label": "在 Blog 中显示", "widget": "boolean", "default": true, "hint": "关闭可隐藏，不删除原文。隐藏只影响网页展示，保存的内容仍在公开仓库中。" },
+                { "name": "body", "label": "正文", "widget": "richtext", "modes": ["rich_text"], "sanitize_preview": true }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
