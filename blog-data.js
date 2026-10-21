@@ -15,6 +15,8 @@
  */
 
 window.BLOG_POSTS = [
+  /*
+   * 以下三个条目暂时隐藏，内容保留；恢复展示时移除此注释块即可。
   {
     slug: "cumcm-autonomous-harness",
     type: "project",
@@ -49,6 +51,7 @@ window.BLOG_POSTS = [
     url: "https://github.com/heisenberg0020/research-code-stewardship-lab",
     body: [],
   },
+   */
 
   /*
    * BLOG 创建模板（默认隐藏，不会显示在网页上）
