@@ -14,6 +14,8 @@ Research 和 Interests 已从主页移除。
 
 ### 一次性连接
 
+当前站点已固定 Site ID，新设备可以直接点击「登录并开始写作」。以下步骤用于首次配置或重建连接。
+
 1. 在 [Decap Turbo](https://turbo.decapcms.org/signup) 注册并创建个人组织，使用 Free 方案。
 2. 在 Git connection 安装官方 GitHub 应用，只授权 `heisenberg0020.github.io` 仓库。不邀请其他编辑者。
 3. 创建站点：Git provider 为 GitHub，Repo 为 `heisenberg0020/heisenberg0020.github.io`，Branch 为 `master`，Config path 为 `admin/config.yml`，Admin interface URL 为 `https://heisenberg0020.github.io/admin/`。
